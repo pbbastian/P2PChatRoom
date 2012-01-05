@@ -2,20 +2,22 @@ package p2pchatroom.core;
 
 import java.io.IOException;
 import java.net.*;
+import java.util.HashSet;
 
 public class DiscoveryListener {
     private MulticastSocket multicastSocket;
-    private int server_port;
+    private int serverPort = 1666;
+    private String host = "239.255.255.255";
     private InetAddress group;
     private String program_name;
-    private boolean listening;
+    public boolean listening;
+    private HashSet<String> clients;
 
-    public DiscoveryListener(String host, int server_port) { //Syntax DiscoveryListener(<BROADCAST_IP>, <PORT>)
-        this.server_port = server_port;
+    public DiscoveryListener() { //Syntax DiscoveryListener(<BROADCAST_IP>, <PORT>)
         this.program_name = "P2PChatRoom";
         try {
             this.group = InetAddress.getByName(host);
-            multicastSocket = new MulticastSocket(server_port);
+            multicastSocket = new MulticastSocket(serverPort);
             multicastSocket.joinGroup(group);
             System.out.println("TTL: "+multicastSocket.getTimeToLive());
         } catch (Exception e) {
@@ -34,6 +36,7 @@ public class DiscoveryListener {
             try {
                 multicastSocket.receive(packet);
                 System.out.println("--Packet received");
+                clients.add(packet.getAddress().getHostAddress());
             } catch (IOException e) {
                 System.out.println("Exception occured");
             }
@@ -52,32 +55,26 @@ public class DiscoveryListener {
             System.out.println("Exception occured");
         }
     }
-    public void setPort(int server_port) {
-        this.server_port = server_port;
-    }
+    
     public void setProgram_name(String program_name) {
         this.program_name = program_name;
+    }
+    
+    public void setHost(String newHost) {
+        this.host = newHost;
+    }
+
+    public void setPort(int newServerPort) {
+        this.serverPort = newServerPort;
+    }
+    
+    public HashSet<String> getClients() {
+        return clients;
     }
 
     // TEST MAIN PROGRAM-----------
     public static void main(String [] args) {
-//        InetAddress local = null;
-//        try {
-//            local = InetAddress.getLocalHost();
-//        } catch (UnknownHostException e) {
-//            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-//        }
-//        NetworkInterface networkInterface = null;
-//        try {
-//            networkInterface = NetworkInterface.getByInetAddress(local);
-//        } catch (SocketException e) {
-//            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-//        }
-//        for (InterfaceAddress address : networkInterface.getInterfaceAddresses()) {
-//            System.out.println(address.getAddress() + " - " + address.getNetworkPrefixLength());
-//        }
-
-        DiscoveryListener listener = new DiscoveryListener("239.255.255.255", 1666);
+        DiscoveryListener listener = new DiscoveryListener();
         listener.listen();
     }
     //END MAIN PROGRAM-------------

@@ -4,30 +4,51 @@ import java.io.IOException;
 import java.net.*;
 
 public class DiscoveryBroadcaster {
-    private String host;
-    private int port;
-    private int nrOfPackets;
+    private String host = "239.255.255.255";
+    private int port = 1667;
+    private int nrOfPackets = 7;
+    private String message = "P2PChatRoom";
+    private DatagramPacket packet;
+    private DatagramSocket socket;
 
-    public DiscoveryBroadcaster(String host, int port, int nrOfPackets) {
-        this.host = host;
-        this.port = port;
-        this.nrOfPackets = nrOfPackets;
-    }
-
-    public void send(String message) throws IOException, UnknownHostException {
+    public DiscoveryBroadcaster() throws IOException{
         byte[] buffer = message.getBytes();
         InetAddress group = InetAddress.getByName(host);
-        DatagramSocket socket = new DatagramSocket(port);
-        DatagramPacket packet = new DatagramPacket(buffer, buffer.length, group, port);
+        socket = new DatagramSocket(port);
+        packet = new DatagramPacket(buffer, buffer.length, group, port);
+
+    }
+    public void sendPackets() {
         for(int i = 0; i < nrOfPackets; i++) {
-            socket.send(packet);
+            try {
+                socket.send(packet);
+            } catch (IOException e) {
+                System.out.println("Error occured: e");
+            }
         }
+    }
+
+    
+    public void setHost(String newHost) {
+        this.host = newHost;
+    }
+
+    public void setPort(int newPort) {
+        this.port = newPort;
+    }
+
+    public void setNrOfPackets(int newNrOfPackets){
+        this.nrOfPackets = newNrOfPackets;
+    }
+    
+    public void setMessage(String newMessage) {
+        this.message = newMessage;
     }
 
     public static void main(String[] args) throws IOException, SocketException {
         new Thread() {
             public void run() {
-                DiscoveryListener listener = new DiscoveryListener("239.255.255.255", 1666);
+                DiscoveryListener listener = new DiscoveryListener();
                 listener.listen();
             }
         }.start();
@@ -38,13 +59,12 @@ public class DiscoveryBroadcaster {
                 } catch (InterruptedException e) {
                     e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
                 }
-                DiscoveryBroadcaster broadcaster = new DiscoveryBroadcaster("239.255.255.255", 1666, 7);
+                DiscoveryBroadcaster broadcaster = null;
                 try {
-                    broadcaster.send("P2PChatRoom");
+                    broadcaster = new DiscoveryBroadcaster();
                 } catch (IOException e) {
-                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                    System.out.println("Error occured: e");
                 }
-
             }
         }.start();
     }
