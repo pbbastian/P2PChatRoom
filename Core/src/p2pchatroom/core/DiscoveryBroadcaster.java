@@ -6,7 +6,7 @@ import java.net.*;
 public class DiscoveryBroadcaster {
     private String host;
     private int port;
-    private int nrOfPackets = 7;
+    private int nrOfPackets;
 
     public DiscoveryBroadcaster(String host, int port, int nrOfPackets) {
         this.host = host;
