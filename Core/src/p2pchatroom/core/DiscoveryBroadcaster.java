@@ -6,10 +6,12 @@ import java.net.*;
 public class DiscoveryBroadcaster {
     private String host;
     private int port;
+    private int nrOfPackets = 7;
 
-    public DiscoveryBroadcaster(String host, int port) {
+    public DiscoveryBroadcaster(String host, int port, int nrOfPackets) {
         this.host = host;
         this.port = port;
+        this.nrOfPackets = nrOfPackets;
     }
 
     public void send(String message) throws IOException, UnknownHostException {
@@ -17,7 +19,9 @@ public class DiscoveryBroadcaster {
         InetAddress group = InetAddress.getByName(host);
         DatagramSocket socket = new DatagramSocket(port);
         DatagramPacket packet = new DatagramPacket(buffer, buffer.length, group, port);
-        socket.send(packet);
+        for(int i = 0; i < nrOfPackets; i++) {
+            socket.send(packet);
+        }
     }
 
     public static void main(String[] args) throws IOException, SocketException {
@@ -34,12 +38,13 @@ public class DiscoveryBroadcaster {
                 } catch (InterruptedException e) {
                     e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
                 }
-                DiscoveryBroadcaster broadcaster = new DiscoveryBroadcaster("239.255.255.255", 1666);
+                DiscoveryBroadcaster broadcaster = new DiscoveryBroadcaster("239.255.255.255", 1666, 7);
                 try {
                     broadcaster.send("P2PChatRoom");
                 } catch (IOException e) {
                     e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
                 }
+
             }
         }.start();
     }
