@@ -4,44 +4,31 @@ import java.io.IOException;
 import java.net.*;
 
 public class DiscoveryBroadcaster {
-    private String host = "239.255.255.255";
-    private int port = 1667;
-    private int nrOfPackets = 7;
-    private String message = "P2PChatRoom";
     private DatagramPacket packet;
     private DatagramSocket socket;
+    private int numberOfPackages;
 
-    public DiscoveryBroadcaster() throws IOException {
-        byte[] buffer = message.getBytes();
-        InetAddress group = InetAddress.getByName(host);
-        socket = new DatagramSocket(port);
-        packet = new DatagramPacket(buffer, buffer.length, group, port);
-
+    public DiscoveryBroadcaster(InetAddress group, int port, byte[] message, int numberOfPackages) throws IOException {
+        this.numberOfPackages = numberOfPackages;
+        this.socket = new DatagramSocket(port);
+        this.packet = new DatagramPacket(message, message.length, group, port);
     }
-    public void sendPackets() {
-        for(int i = 0; i < nrOfPackets; i++) {
-            try {
-                socket.send(packet);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+
+    public DiscoveryBroadcaster(String host, int port, byte[] message, int numberOfPackages) throws IOException {
+        this(InetAddress.getByName(host), port, message, numberOfPackages);
+    }
+
+    public DiscoveryBroadcaster(InetAddress group, int port, String message, int numberOfPackages) throws IOException {
+        this(group, port, message.getBytes(), numberOfPackages);
+    }
+
+    public DiscoveryBroadcaster(String host, int port, String message, int numberOfPackages) throws IOException {
+        this(InetAddress.getByName(host), port, message.getBytes(), numberOfPackages);
+    }
+
+    public void sendPackets() throws IOException {
+        for(int i = 0; i < numberOfPackages; i++) {
+            socket.send(packet);
         }
-    }
-
-    
-    public void setHost(String newHost) {
-        this.host = newHost;
-    }
-
-    public void setPort(int newPort) {
-        this.port = newPort;
-    }
-
-    public void setNrOfPackets(int newNrOfPackets){
-        this.nrOfPackets = newNrOfPackets;
-    }
-    
-    public void setMessage(String newMessage) {
-        this.message = newMessage;
     }
 }

@@ -25,7 +25,7 @@ public class DiscoveryListenerThread extends Thread {
         
         eventListeners = new ArrayList<DiscoveryEventListener>();
     }
-    
+
     public DiscoveryListenerThread(String host, int port, String programName) throws IOException {
         this(InetAddress.getByName(host), port, programName);
     }
@@ -34,6 +34,7 @@ public class DiscoveryListenerThread extends Thread {
         eventListeners.add(eventListener);
     }
 
+    @Override
     public void interrupt() {
         super.interrupt();
         socket.close();
@@ -50,7 +51,7 @@ public class DiscoveryListenerThread extends Thread {
                 clientDiscovered(packet.getAddress());
             } catch (IOException e) {
                 if (!isInterrupted()) {
-                    e.printStackTrace();
+                    ioError(e);
                 } else {
                     System.out.println("Interrupted");
                 }
@@ -63,14 +64,25 @@ public class DiscoveryListenerThread extends Thread {
             eventListener.onClientDiscovered(address);
         }
     }
+
+    private void ioError(IOException exception) {
+        for (DiscoveryEventListener eventListener : eventListeners) {
+            eventListener.onIOError(exception);
+        }
+    }
     
     public static void main(String[] args) {
         try {
             DiscoveryListenerThread thread = new DiscoveryListenerThread("239.255.255.255", 1667, "P2PChatRoom");
             System.out.println("Discovery listener created.");
+
+            DiscoveryBroadcaster broadcaster = new DiscoveryBroadcaster();
+
             thread.start();
             System.out.println("Discovery listener started.");
+
             Thread.sleep(1000);
+
             thread.interrupt();
             System.out.println("Discovery listener interrupted.");
         } catch (IOException e) {
