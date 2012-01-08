@@ -11,7 +11,7 @@ public class DiscoveryBroadcaster {
     private DatagramPacket packet;
     private DatagramSocket socket;
 
-    public DiscoveryBroadcaster() throws IOException{
+    public DiscoveryBroadcaster() throws IOException {
         byte[] buffer = message.getBytes();
         InetAddress group = InetAddress.getByName(host);
         socket = new DatagramSocket(port);
@@ -23,7 +23,7 @@ public class DiscoveryBroadcaster {
             try {
                 socket.send(packet);
             } catch (IOException e) {
-                System.out.println("Error occured: e");
+                e.printStackTrace();
             }
         }
     }
@@ -43,29 +43,5 @@ public class DiscoveryBroadcaster {
     
     public void setMessage(String newMessage) {
         this.message = newMessage;
-    }
-
-    public static void main(String[] args) throws IOException, SocketException {
-        new Thread() {
-            public void run() {
-                DiscoveryListener listener = new DiscoveryListener();
-                listener.listen();
-            }
-        }.start();
-        new Thread() {
-            public void run() {
-                try {
-                    sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-                }
-                DiscoveryBroadcaster broadcaster = null;
-                try {
-                    broadcaster = new DiscoveryBroadcaster();
-                } catch (IOException e) {
-                    System.out.println("Error occured: e");
-                }
-            }
-        }.start();
     }
 }

@@ -3,7 +3,6 @@ package p2pchatroom.core;
 import p2pchatroom.core.events.DiscoveryEventListener;
 
 import java.io.IOException;
-import java.io.InterruptedIOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
@@ -44,13 +43,11 @@ public class DiscoveryListenerThread extends Thread {
         byte[] buffer = programName.getBytes();
         DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
 
-        while (true) {
+        while (!isInterrupted()) {
             try {
                 socket.receive(packet);
+                System.out.println("Received");
                 clientDiscovered(packet.getAddress());
-            } catch (InterruptedIOException e) {
-                Thread.currentThread().interrupt();
-                System.out.println("Interrupted via InterruptedIOException");
             } catch (IOException e) {
                 if (!isInterrupted()) {
                     e.printStackTrace();
@@ -68,6 +65,18 @@ public class DiscoveryListenerThread extends Thread {
     }
     
     public static void main(String[] args) {
-
+        try {
+            DiscoveryListenerThread thread = new DiscoveryListenerThread("239.255.255.255", 1667, "P2PChatRoom");
+            System.out.println("Discovery listener created.");
+            thread.start();
+            System.out.println("Discovery listener started.");
+            Thread.sleep(1000);
+            thread.interrupt();
+            System.out.println("Discovery listener interrupted.");
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }
