@@ -1,6 +1,8 @@
 package p2pchatroom.Console;
 
 import p2pchatroom.core.events.DiscoveryEventListener;
+
+import java.io.IOException;
 import java.net.InetAddress;
 import java.util.Scanner;
 
@@ -98,4 +100,8 @@ public class Application implements DiscoveryEventListener{
         Application application = new Application("P2PChatRoom v1.0");
     }
 
+    @Override
+    public void onIOError(IOException exception) {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
 }
