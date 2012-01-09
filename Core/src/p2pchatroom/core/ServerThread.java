@@ -29,13 +29,11 @@ public class ServerThread extends Thread {
     @Override
     public void run() {
         while (!isInterrupted()) {
-            System.out.println("Loop");
             try {
                 Socket socket = serverSocket.accept();
                 connectionAccepted(socket);
             } catch (IOException e) {
                 if (!isInterrupted()) {
-                    System.out.println("Interrupted");
                     ioError(e);
                 } else {
                     return;
