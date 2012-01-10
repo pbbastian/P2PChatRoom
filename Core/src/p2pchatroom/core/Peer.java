@@ -12,6 +12,10 @@ public class Peer {
         this.nickname = nickname;
     }
 
+    public Peer(InetAddress address) {
+        this.address = address;
+    }
+
     public String getNickname() {
         return nickname;
     }
@@ -34,5 +38,15 @@ public class Peer {
 
     public void setConnection(Connection connection) {
         this.connection = connection;
+    }
+    
+    public boolean equals(Object object) {
+        Peer otherPeer = (Peer) object;
+        if (!otherPeer.address.equals(this.address)) {
+            return false;
+        } else if (!otherPeer.nickname.equals(this.nickname)) {
+            return false;
+        }
+        return true;
     }
 }

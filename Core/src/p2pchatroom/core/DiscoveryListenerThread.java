@@ -13,6 +13,7 @@ public class DiscoveryListenerThread extends Thread {
     private int port;
     private MulticastSocket socket;
     private String programName;
+    private ArrayList<InetAddress> knownAddresses;
     private ArrayList<DiscoveryEventListener> eventListeners;
     
     public DiscoveryListenerThread(InetAddress address, int port, String programName) throws IOException {
@@ -47,7 +48,14 @@ public class DiscoveryListenerThread extends Thread {
         while (!isInterrupted()) {
             try {
                 socket.receive(packet);
-                clientDiscovered(packet.getAddress());
+                InetAddress packetAddress = packet.getAddress();
+                for (InetAddress knownAddress : knownAddresses) {
+                    if (knownAddress.equals(packetAddress)) {
+                        continue;
+                    }
+                }
+                clientDiscovered(packetAddress);
+                knownAddresses.add(packetAddress);
             } catch (IOException e) {
                 if (!isInterrupted()) {
                     ioError(e);

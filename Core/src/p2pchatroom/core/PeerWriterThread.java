@@ -7,12 +7,10 @@ import java.util.ArrayList;
 
 public class PeerWriterThread extends Thread {
     private Socket socket;
-    private PrintWriter writer;
     private ArrayList<String> queue;
     
     public PeerWriterThread(Socket socket) throws IOException {
         this.socket = socket;
-        this.writer = new PrintWriter(socket.getOutputStream());
         this.queue = new ArrayList<String>();
     }
     
@@ -22,6 +20,12 @@ public class PeerWriterThread extends Thread {
 
     @Override
     public void run() {
+        PrintWriter writer = null;
+        try {
+            writer = new PrintWriter(socket.getOutputStream());
+        } catch (IOException e) {
+            // TODO: Raise event
+        }
         while (!isInterrupted()) {
             if (queue.size() > 0) {
                 for (String message : queue) {

@@ -10,18 +10,14 @@ import java.util.ArrayList;
 
 public class Connection implements Closeable {
     private Socket socket;
+    private InetAddress address;
     private PeerReaderThread readerThread;
     private PeerWriterThread writerThread;
     private ArrayList<ConnectionEventListener> eventListeners;
 
-    public Connection(Socket socket) throws IOException {
+    public Connection(Socket socket) {
         this.socket = socket;
-        
-        readerThread = new PeerReaderThread(socket, this);
-        writerThread = new PeerWriterThread(socket);
-        
-        readerThread.start();
-        writerThread.start();
+        this.address = socket.getInetAddress();
     }
     
     public Connection(InetAddress address, int port) throws IOException {
@@ -30,6 +26,14 @@ public class Connection implements Closeable {
     
     public void addEventListener(ConnectionEventListener eventListener) {
         eventListeners.add(eventListener);
+    }
+
+    public void open() throws IOException {
+        readerThread = new PeerReaderThread(socket, this);
+        writerThread = new PeerWriterThread(socket);
+
+        readerThread.start();
+        writerThread.start();
     }
 
     public void message(String message) {
@@ -68,5 +72,9 @@ public class Connection implements Closeable {
         readerThread.interrupt();
         writerThread.interrupt();
         socket.close();
+    }
+
+    public InetAddress getAddress() {
+        return address;
     }
 }
