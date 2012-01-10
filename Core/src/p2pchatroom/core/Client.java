@@ -11,12 +11,19 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 
 public class Client implements DiscoveryEventListener {
-    private String nickname;
-    ArrayList<Peer> peers;
 
-    public Client() {
+    private String nickname;
+    private DiscoveryBroadcaster discoveryBroadcaster;
+    private DiscoveryListenerThread discoveryListenerThread;
+    private ServerThread serverThread;
+    private ArrayList<Peer> peers;
+
+    public Client(InetAddress group) {
         peers = new ArrayList<Peer>();
+        discoveryBroadcaster = new DiscoveryBroadcaster()
     }
+    
+    
     
     public void message(String message) {
         for (Peer peer : peers) {
@@ -32,6 +39,10 @@ public class Client implements DiscoveryEventListener {
         }
     }
     
+    public String getNickname() {
+        return this.nickname;
+    }
+    
     public void setNickname(String nickname) {
         this.nickname = nickname;
         for (Peer peer : peers) {
@@ -39,10 +50,15 @@ public class Client implements DiscoveryEventListener {
         }
     }
     
-    public void closeConnections() throws IOException {
-        for (Peer peer : peers) {
-            peer.getConnection().close();
-            peers.remove(peer);
+    public boolean closeConnections() {
+        try {
+            for (Peer peer : peers) {
+                peer.getConnection().close();
+                peers.remove(peer);
+            }
+            return true;
+        } catch (IOException e) {
+            return false;
         }
     }
     
