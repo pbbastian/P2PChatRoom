@@ -7,12 +7,12 @@ import java.net.Socket;
 
 public class PeerReaderThread extends Thread {
     private Socket socket;
-    private Peer peer;
+    private Connection peerConnection;
     private BufferedReader reader;
     
-    public PeerReaderThread(Socket socket, Peer peer) throws IOException {
+    public PeerReaderThread(Socket socket, Connection peerConnection) throws IOException {
         this.socket = socket;
-        this.peer = peer;
+        this.peerConnection = peerConnection;
         this.reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
     }
     
@@ -21,7 +21,7 @@ public class PeerReaderThread extends Thread {
         while (!isInterrupted()) {
             try {
                 String message = reader.readLine();
-                peer.onMessageReceived(message);
+                peerConnection.onMessageReceived(message);
             } catch (IOException e) {
                 if (!isInterrupted())
                     e.printStackTrace();

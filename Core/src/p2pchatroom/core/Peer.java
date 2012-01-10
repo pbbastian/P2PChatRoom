@@ -1,69 +1,38 @@
 package p2pchatroom.core;
 
-import p2pchatroom.core.events.PeerEventListener;
-
-import java.io.IOException;
-import java.net.Socket;
-import java.util.ArrayList;
+import java.net.InetAddress;
 
 public class Peer {
-    private Socket socket;
-    private PeerReaderThread readerThread;
-    private PeerWriterThread writerThread;
     private String nickname;
-    private String address;
-    private ArrayList<PeerEventListener> eventListeners;
+    private InetAddress address;
+    private Connection connection;
 
-    Peer(Socket socket) throws IOException {
-        this.socket = socket;
-        
-        readerThread = new PeerReaderThread(socket, this);
-        writerThread = new PeerWriterThread(socket);
-        
-        readerThread.start();
-        writerThread.start();
+    public Peer(InetAddress address, String nickname) {
+        this.address = address;
+        this.nickname = nickname;
     }
 
-    public void sendMessage(String message) {
-        writerThread.queueMessage("MSG " + message);
-    }
-    
-    public void sendPrivateMessage(String message) {
-        writerThread.queueMessage("PM " + message);
+    public String getNickname() {
+        return nickname;
     }
 
-    public void sendNickname(String nickname) {
-        writerThread.queueMessage("NICK " + nickname);
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
     }
 
-    void closeConnection() throws IOException {
-        readerThread.interrupt();
-        writerThread.interrupt();
-
-        while (writerThread.isAlive()) {}
-
-        socket.close();
-
-        readerThread = null;
-        writerThread = null;
+    public InetAddress getAddress() {
+        return address;
     }
 
-    void onMessageReceived(String message) {
-        String[] messageParts = message.split(" ", 2);
-        String command = messageParts[0];
+    public void setAddress(InetAddress address) {
+        this.address = address;
+    }
 
-        if (command.equalsIgnoreCase("MSG")) {
-            for (PeerEventListener eventListener : eventListeners) {
-                eventListener.onMessageReceived(this, messageParts[1]);
-            }
-        } else if (command.equalsIgnoreCase("PM")) {
-            for (PeerEventListener eventListener : eventListeners) {
-                eventListener.onPrivateMessageReceived(this, messageParts[1]);
-            }
-        } else if (command.equalsIgnoreCase("NICK")) {
-            for (PeerEventListener eventListener : eventListeners) {
-                eventListener.onNicknameReceived(this, messageParts[1]);
-            }
-        }
+    public Connection getConnection() {
+        return connection;
+    }
+
+    public void setConnection(Connection connection) {
+        this.connection = connection;
     }
 }

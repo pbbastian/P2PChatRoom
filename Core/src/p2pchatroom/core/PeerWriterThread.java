@@ -27,8 +27,8 @@ public class PeerWriterThread extends Thread {
                 for (String message : queue) {
                     writer.println(message);
                 }
-                writer.flush();
                 queue.clear();
+                writer.flush();
             }
         }
     }

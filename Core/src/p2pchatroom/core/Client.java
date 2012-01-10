@@ -4,25 +4,59 @@
 
 package p2pchatroom.core;
 
+import p2pchatroom.core.events.DiscoveryEventListener;
+
+import java.io.IOException;
+import java.net.InetAddress;
 import java.util.ArrayList;
 
-public class Client {
-    ArrayList<Peer> userList = new ArrayList<Peer>();
+public class Client implements DiscoveryEventListener {
+    private String nickname;
+    ArrayList<Peer> peers;
 
     public Client() {
+        peers = new ArrayList<Peer>();
+    }
+    
+    public void message(String message) {
+        for (Peer peer : peers) {
+            peer.getConnection().message(message);
+        }
+    }
+    
+    public void privateMessage(String nickname, String message) {
+        for (Peer peer : peers) {
+            if (peer.getNickname().equals(nickname)) {
+                peer.getConnection().privateMessage(message);
+            }
+        }
+    }
+    
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
+        for (Peer peer : peers) {
+            peer.getConnection().sendNickname(nickname);
+        }
+    }
+    
+    public void closeConnections() throws IOException {
+        for (Peer peer : peers) {
+            peer.getConnection().close();
+            peers.remove(peer);
+        }
+    }
+    
+    public ArrayList<Peer> getPeers() {
+        return this.peers;
+    }
+
+    @Override
+    public void onClientDiscovered(InetAddress address) {
 
     }
-    public void sendMessage(String message) {
-        
-    }
-    public void sendPrivateMessage(String user, String message) {
-        
-    }
-    public void setNickname(String nickname) {
-    }
-    public void closeConnections() {
-    }
-    public void listUsers() {
+
+    @Override
+    public void onIOError(IOException exception) {
 
     }
 }
