@@ -9,20 +9,27 @@ import p2pchatroom.core.events.DiscoveryEventListener;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 public class Client implements DiscoveryEventListener, ConnectionEventListener {
     private static final String clientIdentifier = "P2PChatRoom 0.1";
     private DiscoveryListenerThread discoveryListenerThread;
+    private DiscoveryBroadcasterThread discoveryBroadcasterThread;
     private ServerThread serverThread;
     private ArrayList<Peer> peers;
     private String nickname;
     private InetAddress group;
-    private int discoveryPort;
-    private int connectionPort;
+    private int discoveryPort = 1666;
+    private int connectionPort = 1667;
 
     public Client() {
         this.peers = new ArrayList<Peer>();
+        try {
+            group = InetAddress.getByName("239.255.255.255");
+        } catch (UnknownHostException e) {
+            System.out.println("Error occured: e");
+        }
     }
 
     public String getNickname() {
@@ -40,12 +47,25 @@ public class Client implements DiscoveryEventListener, ConnectionEventListener {
         return this.peers;
     }
     
-    public void broadcast(int numberOfPackages) throws IOException {
-        DiscoveryBroadcaster discoveryBroadcaster = new DiscoveryBroadcaster(group, discoveryPort, clientIdentifier);
-        discoveryBroadcaster.sendPackages(numberOfPackages);
-        discoveryBroadcaster.close();
+    public void broadcast() {
+        try {
+            discoveryBroadcasterThread = new DiscoveryBroadcasterThread(group, discoveryPort, clientIdentifier);
+        } catch (IOException e) {
+            System.out.println("Error occured: e");
+        }
+        discoveryBroadcasterThread.setKeepBroadcasting(true, 10000);
+        discoveryBroadcasterThread.start();
     }
-    
+
+    public void listen() {
+        try {
+            discoveryListenerThread = new DiscoveryListenerThread(group,discoveryPort,clientIdentifier);
+            discoveryListenerThread.start();
+        } catch (IOException e) {
+            System.out.println("Error occured: e");
+        }
+    }
+
     public void message(String message) {
         for (Peer peer : peers) {
             peer.getConnection().message(message);

@@ -14,11 +14,13 @@ public class Application implements DiscoveryEventListener{
     private boolean getConsoleInput = true;
     private String programAndVersion;
     Client client;
-    
+
     public Application(String program_andVersion) {
         this.programAndVersion = program_andVersion;
         introduction();
         client = new Client();
+        client.listen();
+        client.broadcast();
         while(getConsoleInput) {
             analyseConsoleInput(getConsoleInput());
         }
