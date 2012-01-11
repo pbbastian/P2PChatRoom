@@ -12,7 +12,7 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 
 public class Client implements DiscoveryEventListener, ConnectionEventListener {
-    private final String clientIdentifier = "P2PChatRoom 0.1";
+    private static final String clientIdentifier = "P2PChatRoom 0.1";
     private DiscoveryListenerThread discoveryListenerThread;
     private ServerThread serverThread;
     private ArrayList<Peer> peers;
@@ -21,7 +21,7 @@ public class Client implements DiscoveryEventListener, ConnectionEventListener {
     private int discoveryPort;
     private int connectionPort;
 
-    public Client() throws IOException {
+    public Client() {
         this.peers = new ArrayList<Peer>();
     }
 

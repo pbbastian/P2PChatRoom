@@ -5,14 +5,19 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.SocketException;
 
-public class DiscoveryBroadcaster implements Closeable {
+public class DiscoveryBroadcaster extends Thread implements Closeable {
+    private InetAddress group;
+    private int port;
+    private byte[] message;
     private DatagramPacket packet;
     private DatagramSocket socket;
 
     public DiscoveryBroadcaster(InetAddress group, int port, byte[] message) throws IOException {
-        this.socket = new DatagramSocket(port);
-        this.packet = new DatagramPacket(message, message.length, group, port);
+        this.group = group;
+        this.port = port;
+        this.message = message;
     }
 
     public DiscoveryBroadcaster(String host, int port, byte[] message) throws IOException {
@@ -35,6 +40,28 @@ public class DiscoveryBroadcaster implements Closeable {
 
     @Override
     public void close() throws IOException {
-        this.socket.close();
+        this.interrupt();
+        socket.close();
+    }
+    public void run() {
+        while (!isInterrupted()) {
+            packet = new DatagramPacket(message, message.length, group, port);
+            try {
+                socket = new DatagramSocket(port);
+            } catch (SocketException e) {
+                System.out.println("ERROR: SocketException");
+            }
+            try{
+                sendPackages(7);
+            } catch (IOException e) {
+                System.out.println("ERROR: IOException");
+            }
+            socket.close();
+            try {
+                this.wait(10000); //To make the thread repeat every 10000
+            } catch (InterruptedException e) {
+                System.out.println("ERROR: InterruptedException");
+            }
+        }
     }
 }

@@ -18,7 +18,7 @@ public class Application implements DiscoveryEventListener{
     public Application(String program_andVersion) {
         this.programAndVersion = program_andVersion;
         introduction();
-        client = new Client(null);
+        client = new Client();
         while(getConsoleInput) {
             analyseConsoleInput(getConsoleInput());
         }
@@ -96,6 +96,7 @@ public class Application implements DiscoveryEventListener{
                     String message = stringParts[1];
                     client.privateMessage(user, message);
                 }
+
 
             } else if(consoleInput.equalsIgnoreCase("/exit")) {
                 //Closes all connections and exits the program
