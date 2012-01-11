@@ -13,6 +13,8 @@ public class DiscoveryBroadcaster extends Thread implements Closeable {
     private byte[] message;
     private DatagramPacket packet;
     private DatagramSocket socket;
+    private boolean keepBroadcasting = false;
+    private int interval;
 
     public DiscoveryBroadcaster(InetAddress group, int port, byte[] message) throws IOException {
         this.group = group;
@@ -38,6 +40,15 @@ public class DiscoveryBroadcaster extends Thread implements Closeable {
         }
     }
 
+    public void setKeepBroadcasting(boolean keepBroadcasting, int interval) {
+        this.keepBroadcasting = keepBroadcasting;
+        this.interval = interval;
+    }
+
+    public void setInterval(int interval) {
+        this.interval = interval;
+    }
+
     @Override
     public void close() throws IOException {
         this.interrupt();
@@ -51,16 +62,14 @@ public class DiscoveryBroadcaster extends Thread implements Closeable {
             } catch (SocketException e) {
                 System.out.println("ERROR: SocketException");
             }
-            try{
-                sendPackages(7);
-            } catch (IOException e) {
-                System.out.println("ERROR: IOException");
-            }
-            socket.close();
-            try {
-                this.wait(10000); //To make the thread repeat every 10000
-            } catch (InterruptedException e) {
-                System.out.println("ERROR: InterruptedException");
+            if(keepBroadcasting) {
+                try{
+                    sendPackages(7);
+                    this.close();
+                    this.wait(interval);
+                } catch (Exception e) {
+                    System.out.println("ERROR: Interval broadcast stopped");
+                }
             }
         }
     }
