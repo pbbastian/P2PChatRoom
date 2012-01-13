@@ -23,7 +23,8 @@ public class DiscoveryListenerThread extends Thread {
         
         socket = new MulticastSocket(port);
         socket.joinGroup(address);
-        
+
+        knownAddresses = new ArrayList<InetAddress>();
         eventListeners = new ArrayList<DiscoveryEventListener>();
     }
 
