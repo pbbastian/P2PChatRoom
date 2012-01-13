@@ -1,11 +1,13 @@
 package p2pchatroom.core;
 
+import p2pchatroom.core.events.IOExceptionEventListener;
+
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.SocketException;
+import java.util.ArrayList;
 
 public class DiscoveryBroadcasterThread extends Thread implements Closeable {
     private InetAddress group;
@@ -13,13 +15,13 @@ public class DiscoveryBroadcasterThread extends Thread implements Closeable {
     private byte[] message;
     private DatagramPacket packet;
     private DatagramSocket socket;
-    private boolean keepBroadcasting = false;
-    private int interval;
+    private ArrayList<IOExceptionEventListener> eventListeners;
 
     public DiscoveryBroadcasterThread(InetAddress group, int port, byte[] message) throws IOException {
         this.group = group;
         this.port = port;
         this.message = message;
+        this.eventListeners = new ArrayList<IOExceptionEventListener>();
     }
 
     public DiscoveryBroadcasterThread(String host, int port, byte[] message) throws IOException {
@@ -34,19 +36,14 @@ public class DiscoveryBroadcasterThread extends Thread implements Closeable {
         this(InetAddress.getByName(host), port, message.getBytes());
     }
 
+    public void addEventListener(IOExceptionEventListener eventListener) {
+        eventListeners.add(eventListener);
+    }
+
     public void sendPackages(int numberOfPackages) throws IOException {
         for(int i = 0; i < numberOfPackages; i++) {
             socket.send(packet);
         }
-    }
-
-    public void setKeepBroadcasting(boolean keepBroadcasting, int interval) {
-        this.keepBroadcasting = keepBroadcasting;
-        this.interval = interval;
-    }
-
-    public void setInterval(int interval) {
-        this.interval = interval;
     }
 
     @Override
@@ -55,22 +52,22 @@ public class DiscoveryBroadcasterThread extends Thread implements Closeable {
         socket.close();
     }
     public void run() {
-        while (!isInterrupted()) {
-            packet = new DatagramPacket(message, message.length, group, port);
+        packet = new DatagramPacket(message, message.length, group, port);
+        try {
+            socket = new DatagramSocket(port);
+            sendPackages(7);
+        } catch (IOException e) {
+            ioError(e);
+        } finally {
             try {
-                socket = new DatagramSocket(port);
-            } catch (SocketException e) {
-                System.out.println("ERROR: SocketException");
-            }
-            if(keepBroadcasting) {
-                try{
-                    sendPackages(7);
-                    this.close();
-                    this.wait(interval);
-                } catch (Exception e) {
-                    System.out.println("ERROR: Interval broadcast stopped");
-                }
-            }
+                this.close();
+            } catch (IOException e) { }
+        }
+    }
+
+    private void ioError(IOException e) {
+        for (IOExceptionEventListener eventListener : eventListeners) {
+            eventListener.onIOError(e);
         }
     }
 }
