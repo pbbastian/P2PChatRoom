@@ -20,16 +20,11 @@ public class Client implements DiscoveryEventListener, ConnectionEventListener {
     private ArrayList<Peer> peers;
     private String nickname;
     private InetAddress group;
-    private int discoveryPort = 1666;
-    private int connectionPort = 1667;
+    private int discoveryPort;
+    private int connectionPort;
 
     public Client() {
         this.peers = new ArrayList<Peer>();
-        try {
-            group = InetAddress.getByName("239.255.255.255");
-        } catch (UnknownHostException e) {
-            System.out.println("Error occured: e");
-        }
     }
 
     public String getNickname() {
