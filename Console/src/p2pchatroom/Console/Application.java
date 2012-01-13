@@ -30,6 +30,9 @@ public class Application implements ClientEventListener{
         } catch (IOException e) {
             System.out.println("Error occured: "+e.getMessage());
         }
+        while (getConsoleInput) {
+            analyseConsoleInput(getConsoleInput());
+        }
     }
 
     private void introduction() {
