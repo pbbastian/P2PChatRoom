@@ -2,6 +2,7 @@ package p2pchatroom.Console;
 
 import p2pchatroom.core.Client;
 import p2pchatroom.core.Peer;
+import p2pchatroom.core.events.ClientEventListener;
 import p2pchatroom.core.events.DiscoveryEventListener;
 
 import java.io.IOException;
@@ -10,7 +11,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-public class Application implements DiscoveryEventListener{
+public class Application implements ClientEventListener{
     private boolean getConsoleInput = true;
     private InetAddress group;
     private int discoveryPort;
@@ -22,10 +23,10 @@ public class Application implements DiscoveryEventListener{
         this.programAndVersion = program_andVersion;
         introduction();
         getConnectionInfo();
+        client = new Client(group, discoveryPort, connectionPort);
         while(getConsoleInput) {
             analyseConsoleInput(getConsoleInput());
         }
-        client = new Client(group, discoveryPort, connectionPort);
     }
 
     private void introduction() {
@@ -142,7 +143,7 @@ public class Application implements DiscoveryEventListener{
                 System.out.println("Invalid command, type /help for a list of commands");
             }
         } else {
-                //SEND MESSAGE
+                client.message(consoleInput);
             }
     }
     private void largeSpacer() {
@@ -150,18 +151,33 @@ public class Application implements DiscoveryEventListener{
     }
 
     //DISCOVERYLISTENERTHREAD INTERFACE///////////////////////////////////////
-    @Override
-     public void onClientDiscovered(InetAddress address) {
-        System.out.println("Client Discovered @ "+address.getHostAddress());
-    }
-
     //MAIN METHOD//////////////////////////////////////////////////////////////
     public static void main(String[] args) {
-        Application application = new Application("P2PChatRoom v1.0");
+        Application application = new Application("P2PChatRoom v0.1");
     }
 
     @Override
-    public void onIOError(IOException exception) {
-        //To change body of implemented methods use File | Settings | File Templates.
+    public void onMessageReceived(Peer peer, String message) {
+        System.out.printf("> %s: %s\n",peer.getNickname(), message);
+    }
+
+    @Override
+    public void onPrivateMessageReceived(Peer peer, String message) {
+        System.out.printf("> %s: @%s %s\n", peer.getNickname(), client.getNickname(), message);
+    }
+
+    @Override
+    public void onNicknameChanged(Peer peer) {
+        System.out.printf("User changed name to %s\n", peer.getNickname());
+    }
+
+    @Override
+    public void onErrorOccurred(ErrorType type, String message) {
+        System.out.printf("ERROR(%s): %s\n", type.toString(), message);
+    }
+
+    @Override
+    public void onConnectionEstablished(Peer peer) {
+        System.out.printf("%s(%s) has joined\n",peer.getNickname(), peer.getAddress());
     }
 }
