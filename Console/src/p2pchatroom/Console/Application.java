@@ -3,7 +3,6 @@ package p2pchatroom.Console;
 import p2pchatroom.core.Client;
 import p2pchatroom.core.Peer;
 import p2pchatroom.core.events.ClientEventListener;
-import p2pchatroom.core.events.DiscoveryEventListener;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -29,7 +28,7 @@ public class Application implements ClientEventListener{
             client.startListeningForConnections();
             client.broadcast();
         } catch (IOException e) {
-            System.out.println("Error occured: e");
+            System.out.println("Error occured: "+e.getMessage());
         }
     }
 
@@ -44,7 +43,7 @@ public class Application implements ClientEventListener{
         try {
             this.group = InetAddress.getByName(getNetInfo());
         } catch (UnknownHostException e) {
-            System.out.println("Error occured: e");
+            System.out.println("Error occured: "+e.getMessage());
         }
         //Discovery Port
         System.out.print("UDP Discovery port: ");

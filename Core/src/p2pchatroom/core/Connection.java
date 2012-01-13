@@ -20,6 +20,7 @@ public class Connection implements Closeable {
         this.peer = peer;
         this.socket = socket;
         this.address = socket.getInetAddress();
+        this.eventListeners = new ArrayList<ConnectionEventListener>();
     }
     
     public Connection(Peer peer, InetAddress address, int port) throws IOException {
