@@ -26,6 +26,8 @@ public class DiscoveryListenerThread extends Thread {
 
         knownAddresses = new ArrayList<InetAddress>();
         eventListeners = new ArrayList<DiscoveryEventListener>();
+        
+        knownAddresses.add(InetAddress.getLocalHost());
     }
 
     public DiscoveryListenerThread(String host, int port, String programName) throws IOException {
