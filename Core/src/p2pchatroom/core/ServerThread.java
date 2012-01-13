@@ -15,6 +15,10 @@ public class ServerThread extends Thread {
         serverSocket = new ServerSocket(port);
         eventListeners = new ArrayList<ServerEventListener>();
     }
+
+    public void addEventListener(ServerEventListener eventListener) {
+        eventListeners.add(eventListener);
+    }
     
     @Override
     public void interrupt() {

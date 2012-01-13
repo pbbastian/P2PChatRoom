@@ -4,15 +4,15 @@
 
 package p2pchatroom.core;
 
-import p2pchatroom.core.events.ConnectionEventListener;
-import p2pchatroom.core.events.DiscoveryEventListener;
+import p2pchatroom.core.events.*;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 
-public class Client implements DiscoveryEventListener, ConnectionEventListener {
+public class Client implements DiscoveryEventListener, ConnectionEventListener, ServerEventListener, IOExceptionEventListener {
     private static final String clientIdentifier = "P2PChatRoom 0.1";
     private DiscoveryListenerThread discoveryListenerThread;
     private DiscoveryBroadcasterThread discoveryBroadcasterThread;
@@ -22,14 +22,16 @@ public class Client implements DiscoveryEventListener, ConnectionEventListener {
     private InetAddress group;
     private int discoveryPort = 1666;
     private int connectionPort = 1667;
+    private ArrayList<ClientEventListener> eventListeners;
 
-    public Client() {
+    public Client() throws UnknownHostException {
         this.peers = new ArrayList<Peer>();
-        try {
-            group = InetAddress.getByName("239.255.255.255");
-        } catch (UnknownHostException e) {
-            System.out.println("Error occured: e");
-        }
+        this.group = InetAddress.getByName("239.255.255.255");
+        this.eventListeners = new ArrayList<ClientEventListener>();
+    }
+
+    public void addEventListener(ClientEventListener eventListener) {
+        eventListeners.add(eventListener);
     }
 
     public String getNickname() {
@@ -51,9 +53,8 @@ public class Client implements DiscoveryEventListener, ConnectionEventListener {
         try {
             discoveryBroadcasterThread = new DiscoveryBroadcasterThread(group, discoveryPort, clientIdentifier);
         } catch (IOException e) {
-            System.out.println("Error occured: e");
+            errorOccurred(ClientEventListener.ErrorType.Broadcast, "An IO error occurred while broadcasting.");
         }
-        discoveryBroadcasterThread.setKeepBroadcasting(true, 10000);
         discoveryBroadcasterThread.start();
     }
 
@@ -62,6 +63,7 @@ public class Client implements DiscoveryEventListener, ConnectionEventListener {
             discoveryListenerThread = new DiscoveryListenerThread(group,discoveryPort,clientIdentifier);
             discoveryListenerThread.start();
         } catch (IOException e) {
+            
             System.out.println("Error occured: e");
         }
     }
@@ -128,6 +130,17 @@ public class Client implements DiscoveryEventListener, ConnectionEventListener {
                 peer.setNickname(nickname);
                 return;
             }
+        }
+    }
+
+    @Override
+    public void onConnectionAccepted(Socket socket) {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+    
+    private void errorOccurred(ClientEventListener.ErrorType type, String message) {
+        for (ClientEventListener eventListener : eventListeners) {
+            eventListener.onErrorOccurred(type, message);
         }
     }
 }
