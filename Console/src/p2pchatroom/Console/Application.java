@@ -24,8 +24,12 @@ public class Application implements ClientEventListener{
         introduction();
         getConnectionInfo();
         client = new Client(group, discoveryPort, connectionPort);
-        while(getConsoleInput) {
-            analyseConsoleInput(getConsoleInput());
+        try {
+            client.startListeningForBroadcasts();
+            client.startListeningForConnections();
+            client.broadcast();
+        } catch (IOException e) {
+            System.out.println("Error occured: e");
         }
     }
 
@@ -38,23 +42,35 @@ public class Application implements ClientEventListener{
         //Broadcast IP
         System.out.print("Broadcast address (Class D IP): ");
         try {
-            this.group = InetAddress.getByName(getConsoleInput());
+            this.group = InetAddress.getByName(getNetInfo());
         } catch (UnknownHostException e) {
             System.out.println("Error occured: e");
         }
         //Discovery Port
         System.out.print("UDP Discovery port: ");
-        this.discoveryPort = Integer.parseInt(getConsoleInput());
+        this.discoveryPort = Integer.parseInt(getNetInfo());
 
         //Connection Port
         System.out.print("TCP Connection port: ");
-        this.connectionPort = Integer.parseInt(getConsoleInput());
+        this.connectionPort = Integer.parseInt(getNetInfo());
     }
 
     private String getConsoleInput() {
         Scanner console = new Scanner(System.in);
         String consoleInput = "";
         System.out.print("> ");
+        if(console.hasNextLine()) {
+            consoleInput = console.nextLine();
+        }
+        if(consoleInput.equalsIgnoreCase("")) {
+            return getConsoleInput();
+        } else {
+            return consoleInput;
+        }
+    }
+    private String getNetInfo() {
+        Scanner console = new Scanner(System.in);
+        String consoleInput = "";
         if(console.hasNextLine()) {
             consoleInput = console.nextLine();
         }
@@ -112,7 +128,7 @@ public class Application implements ClientEventListener{
                 String[] stringParts = consoleInput.split(" ", 2);
                 String user = stringParts[0].replace("@", "");
                 if(user.equalsIgnoreCase(client.getNickname()) || user.equalsIgnoreCase("Kristian")) {
-                    System.out.println("ERROR: You wrote to yourself...über fail");
+                    System.out.println("ERROR: You wrote to yourself...uber fail");
                 } else {
                     String message = stringParts[1];
                     client.privateMessage(user, message);
