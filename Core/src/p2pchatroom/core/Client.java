@@ -14,20 +14,22 @@ import java.util.ArrayList;
 
 public class Client implements DiscoveryEventListener, ConnectionEventListener, ServerEventListener, IOExceptionEventListener {
     private static final String clientIdentifier = "P2PChatRoom 0.1";
-    private DiscoveryListenerThread discoveryListenerThread;
-    private DiscoveryBroadcasterThread discoveryBroadcasterThread;
     private ServerThread serverThread;
     private ArrayList<Peer> peers;
     private String nickname;
     private InetAddress group;
-    private int discoveryPort = 1666;
-    private int connectionPort = 1667;
+    private int discoveryPort;
+    private int connectionPort;
     private ArrayList<ClientEventListener> eventListeners;
 
-    public Client() throws UnknownHostException {
+    public Client(InetAddress group, int discoveryPort, int connectionPort) {
         this.peers = new ArrayList<Peer>();
-        this.group = InetAddress.getByName("239.255.255.255");
+        this.group = group;
+        this.connectionPort = connectionPort;
+        this.discoveryPort = discoveryPort;
         this.eventListeners = new ArrayList<ClientEventListener>();
+        listen();
+        broadcast();
     }
 
     public void addEventListener(ClientEventListener eventListener) {
@@ -51,19 +53,18 @@ public class Client implements DiscoveryEventListener, ConnectionEventListener, 
     
     public void broadcast() {
         try {
-            discoveryBroadcasterThread = new DiscoveryBroadcasterThread(group, discoveryPort, clientIdentifier);
+            DiscoveryBroadcasterThread discoveryBroadcasterThread = new DiscoveryBroadcasterThread(group, discoveryPort, clientIdentifier);
+            discoveryBroadcasterThread.start();
         } catch (IOException e) {
             errorOccurred(ClientEventListener.ErrorType.Broadcast, "An IO error occurred while broadcasting.");
         }
-        discoveryBroadcasterThread.start();
     }
 
     public void listenForBroadcasts() {
         try {
-            discoveryListenerThread = new DiscoveryListenerThread(group,discoveryPort,clientIdentifier);
+            DiscoveryListenerThread discoveryListenerThread = new DiscoveryListenerThread(group,discoveryPort,clientIdentifier);
             discoveryListenerThread.start();
         } catch (IOException e) {
-            
             System.out.println("Error occured: e");
         }
     }

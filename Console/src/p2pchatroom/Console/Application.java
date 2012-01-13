@@ -12,24 +12,42 @@ import java.util.Scanner;
 
 public class Application implements DiscoveryEventListener{
     private boolean getConsoleInput = true;
+    private InetAddress group;
+    private int discoveryPort;
+    private int connectionPort;
     private String programAndVersion;
-    Client client;
+    private Client client;
 
     public Application(String program_andVersion) {
         this.programAndVersion = program_andVersion;
         introduction();
-        client = new Client();
-        client.listen();
-        client.broadcast();
+        getConnectionInfo();
         while(getConsoleInput) {
             analyseConsoleInput(getConsoleInput());
         }
+        client = new Client(group, discoveryPort, connectionPort);
     }
 
     private void introduction() {
         largeSpacer();
         System.out.printf(" Welcome to %s, type '/help' for a list of commands\n", programAndVersion);
         largeSpacer();
+    }
+    private void getConnectionInfo() {
+        //Broadcast IP
+        System.out.print("Broadcast address (Class D IP): ");
+        try {
+            this.group = InetAddress.getByName(getConsoleInput());
+        } catch (UnknownHostException e) {
+            System.out.println("Error occured: e");
+        }
+        //Discovery Port
+        System.out.print("UDP Discovery port: ");
+        this.discoveryPort = Integer.parseInt(getConsoleInput());
+
+        //Connection Port
+        System.out.print("TCP Connection port: ");
+        this.connectionPort = Integer.parseInt(getConsoleInput());
     }
 
     private String getConsoleInput() {
