@@ -56,7 +56,6 @@ public class Client implements DiscoveryEventListener, ConnectionEventListener, 
         } catch (IOException e) {
             errorOccurred(ClientEventListener.ErrorType.Broadcast, "An IO error occurred while broadcasting.");
         }
-
     }
 
     public void listen() {
