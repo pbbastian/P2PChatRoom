@@ -167,8 +167,8 @@ public class Application implements ClientEventListener{
     }
 
     @Override
-    public void onNicknameChanged(Peer peer) {
-        System.out.printf("User changed name to %s\n", peer.getNickname());
+    public void onNicknameChanged(Peer peer, String oldNickname) {
+        System.out.printf("%s changed name to %s\n",oldNickname , peer.getNickname());
     }
 
     @Override
