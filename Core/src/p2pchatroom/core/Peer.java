@@ -5,7 +5,7 @@ import java.net.InetAddress;
 public class Peer {
     private String nickname;
     private InetAddress address;
-    private Connection connection;
+    Connection connection;
 
     public Peer(InetAddress address, String nickname) {
         this.address = address;
@@ -32,11 +32,11 @@ public class Peer {
         this.address = address;
     }
 
-    public Connection getConnection() {
+    Connection getConnection() {
         return connection;
     }
 
-    public void setConnection(Connection connection) {
+    void setConnection(Connection connection) {
         this.connection = connection;
     }
     

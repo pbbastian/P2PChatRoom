@@ -58,7 +58,7 @@ public class Client implements DiscoveryEventListener, ConnectionEventListener, 
         discoveryBroadcasterThread.start();
     }
 
-    public void listen() {
+    public void listenForBroadcasts() {
         try {
             discoveryListenerThread = new DiscoveryListenerThread(group,discoveryPort,clientIdentifier);
             discoveryListenerThread.start();
@@ -66,6 +66,10 @@ public class Client implements DiscoveryEventListener, ConnectionEventListener, 
             
             System.out.println("Error occured: e");
         }
+    }
+
+    public void listenForConnections() {
+
     }
 
     public void message(String message) {
@@ -98,13 +102,15 @@ public class Client implements DiscoveryEventListener, ConnectionEventListener, 
     public void onClientDiscovered(InetAddress address) {
         try {
             Peer peer = new Peer(address);
-            Connection connection = new Connection(address, connectionPort);
+            Connection connection = new Connection(peer, address, connectionPort);
             connection.addEventListener(this);
             connection.open();
             peer.setConnection(connection);
             peers.add(peer);
+            connectionEstablished(peer);
         } catch (IOException e) {
-            
+            errorOccurred(ClientEventListener.ErrorType.Connection, "An IO error occurred while establishing a connection to '" +
+                address.toString() + "'.");
         }
     }
 
@@ -114,33 +120,52 @@ public class Client implements DiscoveryEventListener, ConnectionEventListener, 
     }
 
     @Override
-    public void onMessageReceived(Connection peer, String message) {
-        //To change body of implemented methods use File | Settings | File Templates.
+    public void onMessageReceived(Connection connection, String message) {
+        for (ClientEventListener eventListener : eventListeners) {
+            eventListener.onMessageReceived(connection.getPeer(), message);
+        }
     }
 
     @Override
-    public void onPrivateMessageReceived(Connection peer, String message) {
-        //To change body of implemented methods use File | Settings | File Templates.
+    public void onPrivateMessageReceived(Connection connection, String message) {
+        for (ClientEventListener eventListener : eventListeners) {
+            eventListener.onPrivateMessageReceived(connection.getPeer(), message);
+        }
     }
 
     @Override
     public void onNicknameReceived(Connection connection, String nickname) {
-        for (Peer peer : peers) {
-            if (peer.getConnection() == connection) {
-                peer.setNickname(nickname);
-                return;
-            }
+        connection.getPeer().setNickname(nickname);
+        for (ClientEventListener eventListener : eventListeners) {
+            eventListener.onNicknameChanged(connection.getPeer());
         }
     }
 
     @Override
     public void onConnectionAccepted(Socket socket) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        try {
+            Peer peer = new Peer(socket.getInetAddress());
+            Connection connection = new Connection(peer, socket);
+            connection.addEventListener(this);
+            connection.open();
+            peer.setConnection(connection);
+            peers.add(peer);
+            connectionEstablished(peer);
+        } catch (IOException e) {
+            errorOccurred(ClientEventListener.ErrorType.Connection, "An IO error occurred while establishing a connection to '" +
+                    socket.getInetAddress().toString() + "'.");
+        }
     }
     
     private void errorOccurred(ClientEventListener.ErrorType type, String message) {
         for (ClientEventListener eventListener : eventListeners) {
             eventListener.onErrorOccurred(type, message);
+        }
+    }
+    
+    private void connectionEstablished(Peer peer) {
+        for (ClientEventListener eventListener : eventListeners) {
+            eventListener.onConnectionEstablished(peer);
         }
     }
 }

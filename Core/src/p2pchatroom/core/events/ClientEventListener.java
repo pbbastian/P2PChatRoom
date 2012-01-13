@@ -7,8 +7,10 @@ public interface ClientEventListener {
     void onPrivateMessageReceived(Peer peer, String message);
     void onNicknameChanged(Peer peer);
     void onErrorOccurred(ErrorType type, String message);
+    void onConnectionEstablished(Peer peer);
     
     public enum ErrorType {
-        Broadcast
+        Broadcast,
+        Connection
     }
 }

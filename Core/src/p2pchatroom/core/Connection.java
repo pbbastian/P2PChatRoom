@@ -14,14 +14,16 @@ public class Connection implements Closeable {
     private PeerReaderThread readerThread;
     private PeerWriterThread writerThread;
     private ArrayList<ConnectionEventListener> eventListeners;
+    Peer peer;
 
-    public Connection(Socket socket) {
+    public Connection(Peer peer, Socket socket) {
+        this.peer = peer;
         this.socket = socket;
         this.address = socket.getInetAddress();
     }
     
-    public Connection(InetAddress address, int port) throws IOException {
-        this(new Socket(address, port));
+    public Connection(Peer peer, InetAddress address, int port) throws IOException {
+        this(peer, new Socket(address, port));
     }
     
     public void addEventListener(ConnectionEventListener eventListener) {
@@ -76,5 +78,13 @@ public class Connection implements Closeable {
 
     public InetAddress getAddress() {
         return address;
+    }
+
+    Peer getPeer() {
+        return peer;
+    }
+
+    void setPeer(Peer peer) {
+        this.peer = peer;
     }
 }
