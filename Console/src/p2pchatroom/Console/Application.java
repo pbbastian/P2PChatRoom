@@ -114,16 +114,6 @@ public class Application implements ClientEventListener{
             } else if(consoleInput.equalsIgnoreCase("/users")) {
                 //Lists users online
                 ArrayList<Peer> userlist = client.getPeers();
-                //TEST STUFF-----------------------------------
-                InetAddress address = null;
-                try {
-                    address = InetAddress.getByName("192.168.2.1");
-                } catch (UnknownHostException e) {
-                    System.out.println("Error occured: e");
-                }
-                Peer myself = new Peer(address, "Kristian");
-                userlist.add(myself);
-                //END TEST STUFF-------------------------------
                 System.out.println("ONLINE USERS:");
                 for(Peer peer : userlist) {
                     System.out.printf("@%-15s %s\n", peer.getNickname(), peer.getAddress().getHostAddress());
@@ -133,7 +123,7 @@ public class Application implements ClientEventListener{
                 //Sends a private message
                 String[] stringParts = consoleInput.split(" ", 2);
                 String user = stringParts[0].replace("@", "");
-                if(user.equalsIgnoreCase(client.getNickname()) || user.equalsIgnoreCase("Kristian")) {
+                if(user.equalsIgnoreCase(client.getNickname()) || user.equalsIgnoreCase(client.getNickname())) {
                     System.out.println("ERROR: You wrote to yourself...uber fail");
                 } else {
                     String message = stringParts[1];
