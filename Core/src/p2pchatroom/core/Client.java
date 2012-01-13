@@ -137,9 +137,10 @@ public class Client implements DiscoveryEventListener, ConnectionEventListener, 
 
     @Override
     public void onNicknameReceived(Connection connection, String nickname) {
+        String oldNickname = connection.getPeer().getNickname();
         connection.getPeer().setNickname(nickname);
         for (ClientEventListener eventListener : eventListeners) {
-            eventListener.onNicknameChanged(connection.getPeer());
+            eventListener.onNicknameChanged(connection.getPeer(), oldNickname);
         }
     }
 
