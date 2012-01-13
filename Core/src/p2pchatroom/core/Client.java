@@ -50,11 +50,11 @@ public class Client implements DiscoveryEventListener, ConnectionEventListener {
     public void broadcast() {
         try {
             discoveryBroadcasterThread = new DiscoveryBroadcasterThread(group, discoveryPort, clientIdentifier);
+            discoveryBroadcasterThread.start();
         } catch (IOException e) {
             System.out.println("Error occured: e");
         }
-        discoveryBroadcasterThread.setKeepBroadcasting(true, 10000);
-        discoveryBroadcasterThread.start();
+
     }
 
     public void listen() {
