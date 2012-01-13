@@ -16,13 +16,14 @@ public class Application implements ClientEventListener{
     private int discoveryPort;
     private int connectionPort;
     private String programAndVersion;
+    private String nickName;
     private Client client;
 
     public Application(String program_andVersion) {
         this.programAndVersion = program_andVersion;
         introduction();
         getConnectionInfo();
-        client = new Client(group, discoveryPort, connectionPort);
+        client = new Client(group, discoveryPort, connectionPort, nickName);
         try {
             client.startListeningForBroadcasts();
             client.startListeningForConnections();
@@ -41,6 +42,9 @@ public class Application implements ClientEventListener{
         largeSpacer();
     }
     private void getConnectionInfo() {
+        //Get Nickname
+        System.out.print("Nickname: ");
+        this.nickName = getNetInfo();
         //Broadcast IP
         System.out.print("Broadcast address (Class D IP): ");
         try {
