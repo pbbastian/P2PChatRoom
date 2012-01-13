@@ -9,7 +9,6 @@ import p2pchatroom.core.events.*;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 public class Client implements DiscoveryEventListener, ConnectionEventListener, ServerEventListener, IOExceptionEventListener {
@@ -21,6 +20,7 @@ public class Client implements DiscoveryEventListener, ConnectionEventListener, 
     private int discoveryPort;
     private int connectionPort;
     private ArrayList<ClientEventListener> eventListeners;
+    private DiscoveryListenerThread discoveryListenerThread;
 
     public Client(InetAddress group, int discoveryPort, int connectionPort) {
         this.peers = new ArrayList<Peer>();
@@ -28,8 +28,6 @@ public class Client implements DiscoveryEventListener, ConnectionEventListener, 
         this.connectionPort = connectionPort;
         this.discoveryPort = discoveryPort;
         this.eventListeners = new ArrayList<ClientEventListener>();
-        listen();
-        broadcast();
     }
 
     public void addEventListener(ClientEventListener eventListener) {
@@ -51,26 +49,29 @@ public class Client implements DiscoveryEventListener, ConnectionEventListener, 
         return this.peers;
     }
     
-    public void broadcast() {
-        try {
-            DiscoveryBroadcasterThread discoveryBroadcasterThread = new DiscoveryBroadcasterThread(group, discoveryPort, clientIdentifier);
-            discoveryBroadcasterThread.start();
-        } catch (IOException e) {
-            errorOccurred(ClientEventListener.ErrorType.Broadcast, "An IO error occurred while broadcasting.");
-        }
+    public void broadcast() throws IOException {
+        DiscoveryBroadcasterThread discoveryBroadcasterThread = new DiscoveryBroadcasterThread(group, discoveryPort, clientIdentifier);
+        discoveryBroadcasterThread.start();
     }
 
-    public void listenForBroadcasts() {
-        try {
-            DiscoveryListenerThread discoveryListenerThread = new DiscoveryListenerThread(group,discoveryPort,clientIdentifier);
-            discoveryListenerThread.start();
-        } catch (IOException e) {
-            System.out.println("Error occured: e");
-        }
+    public void startListeningForBroadcasts() throws IOException {
+        discoveryListenerThread = new DiscoveryListenerThread(group,discoveryPort,clientIdentifier);
+        discoveryListenerThread.addEventListener(this);
+        discoveryListenerThread.start();
+    }
+    
+    public void stopListeningForBroadcasts() {
+        discoveryListenerThread.interrupt();
     }
 
-    public void listenForConnections() {
-
+    public void startListeningForConnections() throws IOException {
+        serverThread = new ServerThread(connectionPort);
+        serverThread.addEventListener(this);
+        serverThread.start();
+    }
+    
+    public void stopListeningForConnections() {
+        serverThread.interrupt();
     }
 
     public void message(String message) {
@@ -117,7 +118,7 @@ public class Client implements DiscoveryEventListener, ConnectionEventListener, 
 
     @Override
     public void onIOError(IOException exception) {
-
+        errorOccurred(ClientEventListener.ErrorType.IO, exception.getMessage());
     }
 
     @Override

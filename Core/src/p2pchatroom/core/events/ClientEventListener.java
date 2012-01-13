@@ -11,6 +11,7 @@ public interface ClientEventListener {
     
     public enum ErrorType {
         Broadcast,
-        Connection
+        Connection,
+        IO
     }
 }
