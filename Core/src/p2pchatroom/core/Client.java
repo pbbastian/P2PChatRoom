@@ -109,6 +109,7 @@ public class Client implements DiscoveryEventListener, ConnectionEventListener, 
             connection.open();
             peer.setConnection(connection);
             peers.add(peer);
+            connection.sendNickname(nickname);
             connectionEstablished(peer);
         } catch (IOException e) {
             errorOccurred(ClientEventListener.ErrorType.Connection, "An IO error occurred while establishing a connection to '" +
@@ -153,6 +154,7 @@ public class Client implements DiscoveryEventListener, ConnectionEventListener, 
             connection.open();
             peer.setConnection(connection);
             peers.add(peer);
+            connection.sendNickname(nickname);
             connectionEstablished(peer);
         } catch (IOException e) {
             errorOccurred(ClientEventListener.ErrorType.Connection, "An IO error occurred while establishing a connection to '" +
