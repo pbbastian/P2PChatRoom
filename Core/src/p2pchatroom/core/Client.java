@@ -22,12 +22,13 @@ public class Client implements DiscoveryEventListener, ConnectionEventListener, 
     private ArrayList<ClientEventListener> eventListeners;
     private DiscoveryListenerThread discoveryListenerThread;
 
-    public Client(InetAddress group, int discoveryPort, int connectionPort) {
+    public Client(InetAddress group, int discoveryPort, int connectionPort, String nickname) {
         this.peers = new ArrayList<Peer>();
         this.group = group;
         this.connectionPort = connectionPort;
         this.discoveryPort = discoveryPort;
         this.eventListeners = new ArrayList<ClientEventListener>();
+        this.nickname = nickname;
     }
 
     public void addEventListener(ClientEventListener eventListener) {
