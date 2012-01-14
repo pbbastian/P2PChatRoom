@@ -5,25 +5,19 @@ import p2pchatroom.core.Peer;
 import p2pchatroom.core.events.ClientEventListener;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Application implements ClientEventListener{
     private boolean getConsoleInput = true;
-    private InetAddress group;
-    private int discoveryPort;
-    private int connectionPort;
     private String programAndVersion;
-    private String nickName;
     private Client client;
 
     public Application(String program_andVersion) {
         this.programAndVersion = program_andVersion;
         introduction();
-        getConnectionInfo();
-        client = new Client(group, discoveryPort, connectionPort, nickName);
+        try {client = new Client("238.255.255.255", 1337, 1338, getConsoleInput());} catch (UnknownHostException e) {}
         client.addEventListener(this);
         try {
             client.startListeningForBroadcasts();
@@ -32,6 +26,7 @@ public class Application implements ClientEventListener{
         } catch (IOException e) {
             System.out.println("Error occured: "+e.getMessage());
         }
+        System.out.println("--- YOU ARE NOW ONLINE ---");
         while (getConsoleInput) {
             analyseConsoleInput(getConsoleInput());
         }
@@ -41,31 +36,12 @@ public class Application implements ClientEventListener{
         largeSpacer();
         System.out.printf(" Welcome to %s, type '/help' for a list of commands\n", programAndVersion);
         largeSpacer();
-    }
-    private void getConnectionInfo() {
-        //Get Nickname
         System.out.print("Nickname: ");
-        this.nickName = getNetInfo();
-        //Broadcast IP
-        System.out.print("Broadcast address (Class D IP): ");
-        try {
-            this.group = InetAddress.getByName(getNetInfo());
-        } catch (UnknownHostException e) {
-            System.out.println("Error occured: "+e.getMessage());
-        }
-        //Discovery Port
-        System.out.print("UDP Discovery port: ");
-        this.discoveryPort = Integer.parseInt(getNetInfo());
-
-        //Connection Port
-        System.out.print("TCP Connection port: ");
-        this.connectionPort = Integer.parseInt(getNetInfo());
     }
 
     private String getConsoleInput() {
         Scanner console = new Scanner(System.in);
         String consoleInput = "";
-        System.out.print("> ");
         if(console.hasNextLine()) {
             consoleInput = console.nextLine();
         }
@@ -75,19 +51,7 @@ public class Application implements ClientEventListener{
             return consoleInput;
         }
     }
-    private String getNetInfo() {
-        Scanner console = new Scanner(System.in);
-        String consoleInput = "";
-        if(console.hasNextLine()) {
-            consoleInput = console.nextLine();
-        }
-        if(consoleInput.equalsIgnoreCase("")) {
-            return getConsoleInput();
-        } else {
-            return consoleInput;
-        }
-    }
-    
+
     private void analyseConsoleInput(String consoleInput) {
         if(consoleInput.substring(0,1).equalsIgnoreCase("/") || consoleInput.substring(0,1).equalsIgnoreCase("@")) {
             //Checks input, to see if user was trying to type a command
@@ -96,7 +60,7 @@ public class Application implements ClientEventListener{
                 //Reports back a list of commands available to the user
                 String[] commandList = new String[] {
                         "message",
-                        "/list",
+                        "/users",
                         "@user <message>",
                         "/exit",
                         "/nick <nickname>"
@@ -171,12 +135,12 @@ public class Application implements ClientEventListener{
 
     @Override
     public void onMessageReceived(Peer peer, String message) {
-        System.out.printf("> %s: %s\n",peer.getNickname(), message);
+        System.out.printf("%s: %s",peer.getNickname(), message);
     }
 
     @Override
     public void onPrivateMessageReceived(Peer peer, String message) {
-        System.out.printf("> %s: @%s %s\n", peer.getNickname(), client.getNickname(), message);
+        System.out.printf("%s: @%s %s\n", peer.getNickname(), client.getNickname(), message);
     }
 
     @Override

@@ -9,6 +9,7 @@ import p2pchatroom.core.events.*;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 public class Client implements DiscoveryEventListener, ConnectionEventListener, ServerEventListener, IOExceptionEventListener {
@@ -22,9 +23,9 @@ public class Client implements DiscoveryEventListener, ConnectionEventListener, 
     private ArrayList<ClientEventListener> eventListeners;
     private DiscoveryListenerThread discoveryListenerThread;
 
-    public Client(InetAddress group, int discoveryPort, int connectionPort, String nickname) {
+    public Client(String group, int discoveryPort, int connectionPort, String nickname) throws UnknownHostException {
         this.peers = new ArrayList<Peer>();
-        this.group = group;
+        this.group = InetAddress.getByName(group);
         this.connectionPort = connectionPort;
         this.discoveryPort = discoveryPort;
         this.eventListeners = new ArrayList<ClientEventListener>();
