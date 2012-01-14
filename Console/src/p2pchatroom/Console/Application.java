@@ -17,7 +17,7 @@ public class Application implements ClientEventListener{
     public Application(String program_andVersion) {
         this.programAndVersion = program_andVersion;
         introduction();
-        try {client = new Client("238.255.255.255", 1337, 1338, getConsoleInput());} catch (UnknownHostException e) {}
+        try {client = new Client("238.255.255.255", 9010, 9011, getConsoleInput());} catch (UnknownHostException e) {}
         client.addEventListener(this);
         try {
             client.startListeningForBroadcasts();
