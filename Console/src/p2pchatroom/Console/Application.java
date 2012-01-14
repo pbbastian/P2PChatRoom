@@ -3,6 +3,7 @@ package p2pchatroom.Console;
 import p2pchatroom.core.Client;
 import p2pchatroom.core.Peer;
 import p2pchatroom.core.events.ClientEventListener;
+import p2pchatroom.core.events.ErrorType;
 
 import java.io.IOException;
 import java.net.UnknownHostException;

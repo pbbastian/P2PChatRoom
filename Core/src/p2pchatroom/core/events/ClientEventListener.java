@@ -8,10 +8,5 @@ public interface ClientEventListener {
     void onNicknameChanged(Peer peer, String oldNickname);
     void onErrorOccurred(ErrorType type, String message);
     void onConnectionEstablished(Peer peer);
-    
-    public enum ErrorType {
-        Broadcast,
-        Connection,
-        IO
-    }
+
 }
