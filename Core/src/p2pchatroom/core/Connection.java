@@ -78,6 +78,8 @@ public class Connection implements Closeable {
         readerThread.interrupt();
         writerThread.interrupt();
         socket.close();
+        readerThread = null;
+        writerThread = null;
     }
 
     public InetAddress getAddress() {

@@ -47,18 +47,20 @@ public class DiscoveryBroadcasterThread extends Thread implements Closeable {
     }
 
     public void run() {
-        packet = new DatagramPacket(message, message.length, group, port);
-        try {
-            socket = new DatagramSocket(port);
-            for(int i = 0; i < 7; i++) {
-                socket.send(packet);
-            }
-        } catch (IOException e) {
-            ioError(e);
-        } finally {
+        while (!isInterrupted()) {
+            packet = new DatagramPacket(message, message.length, group, port);
             try {
-                this.close();
-            } catch (IOException e) { }
+                socket = new DatagramSocket(port);
+                for(int i = 0; i < 7; i++) {
+                    socket.send(packet);
+                }
+            } catch (IOException e) {
+                ioError(e);
+            } finally {
+                try {
+                    this.close();
+                } catch (IOException e) { }
+            }
         }
     }
 

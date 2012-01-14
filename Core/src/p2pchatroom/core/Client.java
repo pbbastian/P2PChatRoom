@@ -96,6 +96,8 @@ public class Client implements DiscoveryEventListener, ConnectionEventListener, 
                 peer.getConnection().close();
             }
             peers.clear();
+            stopListeningForBroadcasts();
+            stopListeningForConnections();
             return true;
         } catch (IOException e) {
             return false;

@@ -34,6 +34,11 @@ public class PeerWriterThread extends Thread {
                 queue.clear();
                 writer.flush();
             }
+            try {
+                sleep(100);
+            } catch (InterruptedException e) {
+
+            }
         }
     }
 }
