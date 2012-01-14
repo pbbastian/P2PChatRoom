@@ -153,6 +153,14 @@ public class Client implements DiscoveryEventListener, ConnectionEventListener, 
     }
 
     @Override
+    public void onConnectionClosed(Connection connection) {
+        peers.remove(connection.getPeer());
+        for (ClientEventListener eventListener : eventListeners) {
+            eventListener.onConnectionClosed(connection.getPeer());
+        }
+    }
+
+    @Override
     public void onConnectionAccepted(Socket socket) {
         try {
             Peer peer = new Peer(socket.getInetAddress());

@@ -156,6 +156,11 @@ public class Application implements ClientEventListener{
 
     @Override
     public void onConnectionEstablished(Peer peer) {
-        System.out.printf("%s(%s) has joined\n",peer.getNickname(), peer.getAddress());
+        System.out.printf("%s (%s) has joined\n",peer.getNickname(), peer.getAddress());
+    }
+
+    @Override
+    public void onConnectionClosed(Peer peer) {
+        System.out.printf("%s (%s) has left\n", peer.getNickname(), peer.getAddress());
     }
 }
