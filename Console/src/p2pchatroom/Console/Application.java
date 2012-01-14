@@ -135,7 +135,7 @@ public class Application implements ClientEventListener{
 
     @Override
     public void onMessageReceived(Peer peer, String message) {
-        System.out.printf("%s: %s",peer.getNickname(), message);
+        System.out.printf("%s: %s\n",peer.getNickname(), message);
     }
 
     @Override
