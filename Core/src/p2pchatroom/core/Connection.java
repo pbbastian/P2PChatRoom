@@ -58,15 +58,19 @@ public class Connection implements Closeable {
         String[] messageParts = message.split(" ", 2);
         String command = messageParts[0];
 
-        if (command.equalsIgnoreCase("MSG")) {
+        if (command.equals("MSG")) {
             for (ConnectionEventListener eventListener : eventListeners) {
                 eventListener.onMessageReceived(this, messageParts[1]);
             }
-        } else if (command.equalsIgnoreCase("PM")) {
+        } else if (command.equals("PM")) {
             for (ConnectionEventListener eventListener : eventListeners) {
                 eventListener.onPrivateMessageReceived(this, messageParts[1]);
             }
-        } else if (command.equalsIgnoreCase("NICK")) {
+        } else if (command.equals("NICK")) {
+            for (ConnectionEventListener eventListener : eventListeners) {
+                eventListener.onNicknameReceived(this, messageParts[1]);
+            }
+        } else if (command.equals("EXIT")) {
             for (ConnectionEventListener eventListener : eventListeners) {
                 eventListener.onNicknameReceived(this, messageParts[1]);
             }
@@ -75,6 +79,7 @@ public class Connection implements Closeable {
 
     @Override
     public void close() throws IOException {
+        writerThread.queueMessage("EXIT");
         readerThread.interrupt();
         writerThread.interrupt();
         socket.close();
