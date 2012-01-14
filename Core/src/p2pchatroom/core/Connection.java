@@ -52,6 +52,9 @@ public class Connection implements Closeable {
     }
 
     public void onMessageReceived(String message) {
+        if (message == null)
+            return;
+
         String[] messageParts = message.split(" ", 2);
         String command = messageParts[0];
 

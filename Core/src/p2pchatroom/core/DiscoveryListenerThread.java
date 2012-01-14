@@ -7,13 +7,14 @@ import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class DiscoveryListenerThread extends Thread {
     private InetAddress address;
     private int port;
     private MulticastSocket socket;
     private String programName;
-    private ArrayList<InetAddress> knownAddresses;
+    private ArrayList<byte[]> knownAddresses;
     private ArrayList<DiscoveryEventListener> eventListeners;
     
     public DiscoveryListenerThread(InetAddress address, int port, String programName) throws IOException {
@@ -24,10 +25,10 @@ public class DiscoveryListenerThread extends Thread {
         socket = new MulticastSocket(port);
         socket.joinGroup(address);
 
-        knownAddresses = new ArrayList<InetAddress>();
+        knownAddresses = new ArrayList<byte[]>();
         eventListeners = new ArrayList<DiscoveryEventListener>();
         
-        knownAddresses.add(InetAddress.getLocalHost());
+        knownAddresses.add(InetAddress.getLocalHost().getAddress());
     }
 
     public DiscoveryListenerThread(String host, int port, String programName) throws IOException {
@@ -52,13 +53,17 @@ public class DiscoveryListenerThread extends Thread {
             try {
                 socket.receive(packet);
                 InetAddress packetAddress = packet.getAddress();
-                for (InetAddress knownAddress : knownAddresses) {
-                    if (knownAddress.equals(packetAddress)) {
+                boolean matchingAddressFound = false;
+                for (byte[] knownAddress : knownAddresses) {
+                    if (Arrays.equals(knownAddress, packetAddress.getAddress())) {
+                        matchingAddressFound = true;
                         continue;
                     }
                 }
-                clientDiscovered(packetAddress);
-                knownAddresses.add(packetAddress);
+                if (matchingAddressFound == false) {
+                    clientDiscovered(packetAddress);
+                    knownAddresses.add(packetAddress.getAddress());
+                }
             } catch (IOException e) {
                 if (!isInterrupted()) {
                     ioError(e);

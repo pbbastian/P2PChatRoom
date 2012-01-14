@@ -39,14 +39,4 @@ public class Peer {
     void setConnection(Connection connection) {
         this.connection = connection;
     }
-    
-    public boolean equals(Object object) {
-        Peer otherPeer = (Peer) object;
-        if (!otherPeer.address.equals(this.address)) {
-            return false;
-        } else if (!otherPeer.nickname.equals(this.nickname)) {
-            return false;
-        }
-        return true;
-    }
 }

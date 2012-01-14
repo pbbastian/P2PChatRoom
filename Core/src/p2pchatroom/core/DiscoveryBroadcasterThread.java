@@ -40,22 +40,19 @@ public class DiscoveryBroadcasterThread extends Thread implements Closeable {
         eventListeners.add(eventListener);
     }
 
-    public void sendPackages(int numberOfPackages) throws IOException {
-        for(int i = 0; i < numberOfPackages; i++) {
-            socket.send(packet);
-        }
-    }
-
     @Override
     public void close() throws IOException {
         this.interrupt();
         socket.close();
     }
+
     public void run() {
         packet = new DatagramPacket(message, message.length, group, port);
         try {
             socket = new DatagramSocket(port);
-            sendPackages(7);
+            for(int i = 0; i < 7; i++) {
+                socket.send(packet);
+            }
         } catch (IOException e) {
             ioError(e);
         } finally {
