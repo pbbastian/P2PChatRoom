@@ -23,10 +23,7 @@ public class PeerReaderThread extends Thread {
                 String message = reader.readLine();
                 peerConnection.onMessageReceived(message);
             } catch (IOException e) {
-                if (!isInterrupted())
-                    e.printStackTrace();
-                else
-                    System.out.println("PeerReaderThread interrupted");
+                break;
             }
         }
     }
