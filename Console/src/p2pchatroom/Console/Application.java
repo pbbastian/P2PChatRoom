@@ -24,6 +24,7 @@ public class Application implements ClientEventListener{
         introduction();
         getConnectionInfo();
         client = new Client(group, discoveryPort, connectionPort, nickName);
+        client.addEventListener(this);
         try {
             client.startListeningForBroadcasts();
             client.startListeningForConnections();
