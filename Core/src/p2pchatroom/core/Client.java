@@ -112,7 +112,6 @@ public class Client implements DiscoveryEventListener, ConnectionEventListener, 
             peer.setConnection(connection);
             peers.add(peer);
             connection.sendNickname(nickname);
-            connectionEstablished(peer);
         } catch (IOException e) {
             errorOccurred(ClientEventListener.ErrorType.Connection, "An IO error occurred while establishing a connection to '" +
                 address.toString() + "'.");
@@ -142,8 +141,12 @@ public class Client implements DiscoveryEventListener, ConnectionEventListener, 
     public void onNicknameReceived(Connection connection, String nickname) {
         String oldNickname = connection.getPeer().getNickname();
         connection.getPeer().setNickname(nickname);
-        for (ClientEventListener eventListener : eventListeners) {
-            eventListener.onNicknameChanged(connection.getPeer(), oldNickname);
+        if (oldNickname == null) {
+            connectionEstablished(connection.getPeer());
+        } else {
+            for (ClientEventListener eventListener : eventListeners) {
+                eventListener.onNicknameChanged(connection.getPeer(), oldNickname);
+            }
         }
     }
 
@@ -157,7 +160,6 @@ public class Client implements DiscoveryEventListener, ConnectionEventListener, 
             peer.setConnection(connection);
             peers.add(peer);
             connection.sendNickname(nickname);
-            connectionEstablished(peer);
         } catch (IOException e) {
             errorOccurred(ClientEventListener.ErrorType.Connection, "An IO error occurred while establishing a connection to '" +
                     socket.getInetAddress().toString() + "'.");
