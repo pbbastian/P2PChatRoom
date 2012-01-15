@@ -143,7 +143,7 @@ public class ApplicationGUI implements ActionListener, ClientEventListener{
                 //Sets nickname of client
                 String[] stringParts = textInput.split(" ");
                 String nickname = stringParts[1];
-                chatLog.addNicknameChangeMessage(new Peer(null, client.getNickname()), nickname);
+                chatLog.addNicknameChangeMessage(new Peer(null, nickname), client.getNickname());
                 client.setNickname(nickname);
 
             } else {
