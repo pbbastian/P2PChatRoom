@@ -1,12 +1,12 @@
 import net.miginfocom.swing.MigLayout;
-import p2pchatroom.core.*;
+import p2pchatroom.core.Client;
+import p2pchatroom.core.Peer;
 import p2pchatroom.core.events.ClientEventListener;
 import p2pchatroom.core.events.ErrorType;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 public class ApplicationGUI implements ActionListener, ClientEventListener{
@@ -20,6 +20,11 @@ public class ApplicationGUI implements ActionListener, ClientEventListener{
     private JButton send;
     
     public ApplicationGUI() {
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         ///////////////////////////////////////////////////////////////GUI START
         JFrame frame = new JFrame("TEST");
         MigLayout layout = new MigLayout("fill, wrap 3");
@@ -55,9 +60,13 @@ public class ApplicationGUI implements ActionListener, ClientEventListener{
         try {
             client = new Client("238.255.255.255", 9010, 9011,this.nickname);
             client.addEventListener(this);
-        } catch (UnknownHostException e) {
-            chatLog.addErrorMessage("Error occured: "+e);
+            client.startListeningForBroadcasts();
+            client.startListeningForConnections();
+            client.broadcast();
+        } catch (Exception e) {
+            chatLog.addErrorMessage("Error occured: " + e);
         }
+        
         this.peers = new ArrayList<Peer>(client.getPeers());
 
     }
@@ -114,17 +123,14 @@ public class ApplicationGUI implements ActionListener, ClientEventListener{
                 //Sets nickname of client
                 String[] stringParts = textInput.split(" ");
                 String nickname = stringParts[1];
+                chatLog.addNicknameChangeMessage(new Peer(null, client.getNickname()), nickname);
                 client.setNickname(nickname);
-                //TODO: Notify chatlog of name change
-                //System.out.printf("Nickname set to %s\n", nickname);
 
             } else {
-                //Reached when command was not found
-                //TODO: Notify chatlog of an uknown command
-                //System.out.println("Invalid command, type /help for a list of commands");
+                chatLog.addErrorMessage("Invalid command, type /help for a list of commands");
             }
         } else {
-            //TODO: Add message to chatlog
+            chatLog.addMessage(new Peer(null, client.getNickname()), textInput);
             client.message(textInput);
         }
     }
