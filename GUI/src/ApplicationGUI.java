@@ -21,6 +21,18 @@ public class ApplicationGUI implements ActionListener, ClientEventListener{
     
     public ApplicationGUI() {
         ///////////////////////////////////////////////////////////////GUI START
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); //Makes use of Windows 7 looks
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (UnsupportedLookAndFeelException e) {
+            e.printStackTrace();
+        }
+
         JFrame frame = new JFrame("TEST");
         MigLayout layout = new MigLayout("fill, wrap 3");
         JPanel panel = new JPanel(layout);
