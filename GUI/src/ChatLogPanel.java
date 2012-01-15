@@ -6,41 +6,82 @@ import java.awt.*;
 
 public class ChatLogPanel extends JPanel {
     private MigLayout layout;
+    private boolean isFirstMessage = true;
 
     public ChatLogPanel() {
-        layout = new MigLayout("fillx, aligny bottom, wrap 2", "[align right]10[fill]", "[]10[]");
+        layout = new MigLayout("fillx, aligny bottom, wrap 2", "[align right]10[grow]", "5[align top]5[]");
         setLayout(layout);
         setBackground(Color.WHITE);
-        
-        addMessage(new Peer(null, "izym"), "Dette er en besked!");
-        addMessage(new Peer(null, "Systemic33"), "Dette er en besked!");
-        addMessage(new Peer(null, "Systemic33"), "Dette er en besked!asdfasdf");
-        addMessage(new Peer(null, "izym"), "Dette er en besked!");
     }
 
     public void addMessage(Peer peer, String message) {
-        JLabel usernameLabel = new JLabel("<html><b>" + peer.getNickname() + "</b>");
-        JLabel messageLabel = new JLabel(message);
-        add(usernameLabel);
-        add(messageLabel);
+        addLine("<html><p><b>" + peer.getNickname() + "</b></p></html>", "<html><p>" + message + "</p></html>", null, null);
     }
     
-    public static void main(String[] args) {
+    public void addPrivateMessage(Peer peer, String message) {
+        addLine("<html><p><b>" + peer.getNickname() + "</b></p></html>", "<html><p>" + message + "</p></html>", null, Color.getHSBColor((float)0.3, (float)1.0, (float)0.5));
+    }
+    
+    public void addJoinMessage(Peer peer) {
+        addLine("*", "<html><b>" + peer.getNickname() + "</b> has joined.</html>", null, Color.getHSBColor((float)0.6, (float)1.0, (float)0.5));
+    }
+
+    public void addLeftMessage(Peer peer) {
+        addLine("*", "<html><b>" + peer.getNickname() + "</b> has left.</html>", null, Color.getHSBColor((float)0.6, (float)1.0, (float)0.5));
+    }
+    
+    private void addLine(String sender, String message, Color senderForeground, Color messageForeground) {
+        if (!isFirstMessage) {
+            JSeparator separator = new JSeparator(JSeparator.HORIZONTAL);
+            separator.setForeground(Color.getHSBColor((float)0, (float)0, (float)0.9));
+            add(separator, "span 2, grow");
+        } else {
+            isFirstMessage = false;
+        }
+
+        JLabel senderLabel = new JLabel(sender);
+        JLabel messageLabel = new JLabel(message);
+
+        if (senderForeground != null) {
+            senderLabel.setForeground(senderForeground);
+        }
+        if (messageForeground != null) {
+            messageLabel.setForeground(messageForeground);
+        }
+
+        add(senderLabel);
+        add(messageLabel);
+
+        updateUI();
+    }
+    
+    public static void main(String[] args) throws InterruptedException {
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (ClassNotFoundException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            e.printStackTrace();
         } catch (InstantiationException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            e.printStackTrace();
         } catch (IllegalAccessException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            e.printStackTrace();
         } catch (UnsupportedLookAndFeelException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            e.printStackTrace();
         }
+
         JFrame frame = new JFrame("Test");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         ChatLogPanel chat = new ChatLogPanel();
+        chat.addMessage(new Peer(null, "izym"), "Dette er en besked!");
+        chat.addMessage(new Peer(null, "Systemic33"), "Dette er en besked!");
+        chat.addPrivateMessage(new Peer(null, "Systemic33"), "Dette er en besked! asdf asdf asdf asdf asdf asdf");
+        chat.addMessage(new Peer(null, "izym"), "Dette er en besked!");
         frame.setContentPane(chat);
-        frame.pack();
+        frame.setSize(500, 500);
         frame.setVisible(true);
+        Thread.sleep(1000);
+        chat.addJoinMessage(new Peer(null, "Systemic33"));
+        chat.addPrivateMessage(new Peer(null, "Systemic33"), "Dette er en besked! asdf asdf asdf asdf asdf asdf");
+        Thread.sleep(1000);
+        chat.addMessage(new Peer(null, "izym"), "Dette er en besked!");
     }
 }
