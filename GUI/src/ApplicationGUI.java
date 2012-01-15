@@ -163,7 +163,7 @@ public class ApplicationGUI implements ActionListener, ClientEventListener{
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == send || e.getSource() == chatInput) {
-            if(!chatInput.getText().equals(null)) {
+            if(!chatInput.getText().equals("")) {
                 analyseInput(chatInput.getText());
             }
         }
