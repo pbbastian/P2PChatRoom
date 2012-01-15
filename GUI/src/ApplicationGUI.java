@@ -143,6 +143,7 @@ public class ApplicationGUI implements ActionListener, ClientEventListener{
             }
         } else {
             chatLog.addMessage(new Peer(null, client.getNickname()), textInput);
+            chatInput.setText("");
             client.message(textInput);
         }
     }
