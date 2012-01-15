@@ -28,8 +28,10 @@ public class ApplicationGUI implements ActionListener, ClientEventListener{
 
         chatLog= new ChatLogPanel();
         userList = new JList<String>();
-        chatInput = new JTextField("CHAT INPUT");
+        chatInput = new JTextField();
         send = new JButton("Send");
+        
+        chatInput.addActionListener(this);
         send.addActionListener(this);
 
         userList.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
@@ -52,10 +54,11 @@ public class ApplicationGUI implements ActionListener, ClientEventListener{
 
         try {
             client = new Client("238.255.255.255", 9010, 9011,this.nickname);
+            client.addEventListener(this);
         } catch (UnknownHostException e) {
-            System.out.println("Error occured: "+e);
+            chatLog.addErrorMessage("Error occured: "+e);
         }
-        this.peers = client.getPeers();
+        this.peers = new ArrayList<Peer>(client.getPeers());
 
     }
     private void updateUserList() {
@@ -91,12 +94,8 @@ public class ApplicationGUI implements ActionListener, ClientEventListener{
 
             } else if(textInput.equalsIgnoreCase("/users")) {
                 //Lists users online
-                ArrayList<Peer> userlist = client.getPeers();
-                System.out.println("ONLINE USERS:");
-                for(Peer peer : userlist) {
-                    //TODO: Add the following text output to chatlog.
-                    //System.out.printf("@%-15s %s\n", peer.getNickname(), peer.getAddress().getHostAddress());
-                }
+                ArrayList<Peer> peers = new ArrayList<Peer>(client.getPeers());
+                chatLog.addPeerList(peers);
 
             } else if(textInput.substring(0,1).equalsIgnoreCase("@")) {
                 //Sends a private message
@@ -105,8 +104,9 @@ public class ApplicationGUI implements ActionListener, ClientEventListener{
                 if(user.equalsIgnoreCase(client.getNickname()) || user.equalsIgnoreCase(client.getNickname())) {
                     JOptionPane.showMessageDialog(null, "You can't send a Private Message to yourself");
                 } else {
-                    //TODO: Add the sent PM to chatlog
                     String message = stringParts[1];
+                    // TODO: Simplify this in some way
+                    chatLog.addPrivateMessage(new Peer(null, client.getNickname()), message);
                     client.privateMessage(user, message);
                 }
 
@@ -135,7 +135,7 @@ public class ApplicationGUI implements ActionListener, ClientEventListener{
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == send) {
+        if (e.getSource() == send || e.getSource() == chatInput) {
             if(!chatInput.getText().equals(null)) {
                 analyseInput(chatInput.getText());
             }
@@ -144,34 +144,34 @@ public class ApplicationGUI implements ActionListener, ClientEventListener{
 
     @Override
     public void onMessageReceived(Peer peer, String message) {
-        //TODO: Notify chatlog
+        chatLog.addMessage(peer, message);
     }
 
     @Override
     public void onPrivateMessageReceived(Peer peer, String message) {
-        //TODO: Notify chatlog
+        chatLog.addPrivateMessage(peer, message);
     }
 
     @Override
     public void onNicknameChanged(Peer peer, String oldNickname) {
-        //TODO: Notify chatlog
+        chatLog.addNicknameChangeMessage(peer, oldNickname);
         updateUserList();
     }
 
     @Override
     public void onErrorOccurred(ErrorType type, String message) {
-        //TODO: Notify chatlog
+        chatLog.addErrorMessage(message);
     }
 
     @Override
     public void onConnectionEstablished(Peer peer) {
-        //TODO: Notify chatlog
+        chatLog.addJoinMessage(peer);
         updateUserList();
     }
 
     @Override
     public void onConnectionClosed(Peer peer) {
-        //TODO: Notify chatlog
+        chatLog.addLeftMessage(peer);
         updateUserList();
     }
 }
