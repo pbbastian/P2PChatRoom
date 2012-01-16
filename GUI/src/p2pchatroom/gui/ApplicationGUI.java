@@ -53,8 +53,11 @@ public class ApplicationGUI implements ActionListener, ClientEventListener {
         userList.setLayoutOrientation(JList.VERTICAL);
         userList.setVisibleRowCount(-1);
 
+        JScrollPane scrollPane = new JScrollPane(userList);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
         panel.add(chatLog.getScrollPane(), "cell 1 0 3 1, grow, push, gapx 8 10, gapy 10 0");
-        panel.add(userList, "dock east, gapx 0 10, gapy 10 10, width 90!");
+        panel.add(scrollPane, "dock east, gapx 0 10, gapy 10 10, width 90!");
         panel.add(chatInput, "cell 1 3 2 1, growx, pushx, gapx 10 0, gapy 0 10, h 26!");
         panel.add(send, "cell 3 3, gapx 0 10");
 
@@ -70,8 +73,8 @@ public class ApplicationGUI implements ActionListener, ClientEventListener {
         ////////////////////////////////////////////////////////////////GUI END
 
         startClient(9010, 9011);
-        this.peers = new ArrayList<Peer>(client.getPeers());
-
+        this.peers = new ArrayList<Peer>();
+        updateUserList();
     }
     private void startClient(int discoveryPort, int connectionPort) {
         try {
@@ -123,7 +126,6 @@ public class ApplicationGUI implements ActionListener, ClientEventListener {
             for(Peer peer : peers) {
                 if(input.substring(1,(peer.getNickname().length())).equals(peer.getNickname())) {
                     String message = input.substring(peer.getNickname().length()+2,input.length());
-                    chatLog.addPrivateMessage(peer, message);
                     client.privateMessage(peer.getNickname(), message);
                     found = true;
                 }
@@ -141,7 +143,6 @@ public class ApplicationGUI implements ActionListener, ClientEventListener {
             chatLog.addSystemMessage("This command is currently not working");
 
         } else if(command.equals("nick") || command.equals("nickname")){
-            chatLog.addNicknameChangeMessage(new Peer(null, parameter1), client.getNickname());
             client.setNickname(parameter1);
 
         } else if(command.equals("userlist") || command.equals("users") || command.equals("list")) {
@@ -171,7 +172,6 @@ public class ApplicationGUI implements ActionListener, ClientEventListener {
         if (e.getSource() == send || e.getSource() == chatInput) {
             String input = chatInput.getText();
             if(!chatInput.getText().equals("")) {
-                chatLog.addMessage(new Peer(null, client.getNickname()), input);
                 chatInput.setText("");
                 interpretInput(input);
             }

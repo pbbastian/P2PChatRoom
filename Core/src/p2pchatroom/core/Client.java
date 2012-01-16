@@ -35,7 +35,10 @@ public class Client implements DiscoveryEventListener, ConnectionEventListener, 
         this.clientIdentifier = clientIdentifier;
         
         InetAddress localAddress = InetAddress.getLocalHost();
-        Peer self = new Peer(localAddress, nickname, true);
+        Peer self = new Peer(localAddress, nickname);
+        ConnectionTempName fakeConnection = new FakeConnection(self, localAddress);
+        fakeConnection.addEventListener(this);
+        self.setConnection(fakeConnection);
         peers.add(self);
     }
 
@@ -115,7 +118,7 @@ public class Client implements DiscoveryEventListener, ConnectionEventListener, 
     public void onClientDiscovered(InetAddress address) {
         try {
             Peer peer = new Peer(address);
-            Connection connection = new Connection(peer, address, connectionPort);
+            PeerConnection connection = new PeerConnection(peer, address, connectionPort);
             connection.addEventListener(this);
             connection.open();
             peer.setConnection(connection);
@@ -133,21 +136,21 @@ public class Client implements DiscoveryEventListener, ConnectionEventListener, 
     }
 
     @Override
-    public void onMessageReceived(Connection connection, String message) {
+    public void onMessageReceived(ConnectionTempName connection, String message) {
         for (ClientEventListener eventListener : eventListeners) {
             eventListener.onMessageReceived(connection.getPeer(), message);
         }
     }
 
     @Override
-    public void onPrivateMessageReceived(Connection connection, String message) {
+    public void onPrivateMessageReceived(ConnectionTempName connection, String message) {
         for (ClientEventListener eventListener : eventListeners) {
             eventListener.onPrivateMessageReceived(connection.getPeer(), message);
         }
     }
 
     @Override
-    public void onNicknameReceived(Connection connection, String nickname) {
+    public void onNicknameReceived(ConnectionTempName connection, String nickname) {
         String oldNickname = connection.getPeer().getNickname();
         connection.getPeer().setNickname(nickname);
         if (oldNickname == null) {
@@ -160,7 +163,7 @@ public class Client implements DiscoveryEventListener, ConnectionEventListener, 
     }
 
     @Override
-    public void onConnectionClosed(Connection connection) {
+    public void onConnectionClosed(ConnectionTempName connection) {
         peers.remove(connection.getPeer());
         for (ClientEventListener eventListener : eventListeners) {
             eventListener.onConnectionClosed(connection.getPeer());
@@ -171,7 +174,7 @@ public class Client implements DiscoveryEventListener, ConnectionEventListener, 
     public void onConnectionAccepted(Socket socket) {
         try {
             Peer peer = new Peer(socket.getInetAddress());
-            Connection connection = new Connection(peer, socket);
+            PeerConnection connection = new PeerConnection(peer, socket);
             connection.addEventListener(this);
             connection.open();
             peer.setConnection(connection);

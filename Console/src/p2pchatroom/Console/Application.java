@@ -107,7 +107,7 @@ public class Application implements ClientEventListener {
                     client.message(""+client.getNickname()+" has exited the program");
                     System.exit(0);
                 } else {
-                    System.out.println("ERROR: Unable to close connect - Connection not found");
+                    System.out.println("ERROR: Unable to close connect - PeerConnection not found");
                     System.exit(1); //IOException occurs when Client cannot find the connection it is trying to close.
                 }
 

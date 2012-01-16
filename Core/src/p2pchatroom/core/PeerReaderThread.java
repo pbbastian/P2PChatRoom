@@ -7,10 +7,10 @@ import java.net.Socket;
 
 class PeerReaderThread extends Thread {
     private final Socket socket;
-    private final Connection peerConnection;
+    private final PeerConnection peerConnection;
     private BufferedReader reader;
     
-    public PeerReaderThread(Socket socket, Connection peerConnection) throws IOException {
+    public PeerReaderThread(Socket socket, PeerConnection peerConnection) throws IOException {
         this.socket = socket;
         this.peerConnection = peerConnection;
         this.reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
