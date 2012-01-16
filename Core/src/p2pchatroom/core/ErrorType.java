@@ -1,4 +1,4 @@
-package p2pchatroom.core.events;
+package p2pchatroom.core;
 
 public enum ErrorType {
     Broadcast,
