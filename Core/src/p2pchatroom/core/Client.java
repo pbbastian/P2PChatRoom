@@ -1,8 +1,8 @@
+package p2pchatroom.core;
+
 /* This class handles the peers and provide the general API for any interface with the user.
  * 
  */
-
-package p2pchatroom.core;
 
 import p2pchatroom.core.events.*;
 

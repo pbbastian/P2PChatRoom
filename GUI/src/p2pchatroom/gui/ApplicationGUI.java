@@ -1,8 +1,10 @@
+package p2pchatroom.gui;
+
 import net.miginfocom.swing.MigLayout;
 import p2pchatroom.core.Client;
+import p2pchatroom.core.ErrorType;
 import p2pchatroom.core.Peer;
 import p2pchatroom.core.events.ClientEventListener;
-import p2pchatroom.core.events.ErrorType;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -14,7 +16,7 @@ import java.net.BindException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-public class ApplicationGUI implements ActionListener, ClientEventListener{
+public class ApplicationGUI implements ActionListener, ClientEventListener {
     //Core-related
     private static final String programVersion = "P2P LAN Chat v1.0";
     private Client client;

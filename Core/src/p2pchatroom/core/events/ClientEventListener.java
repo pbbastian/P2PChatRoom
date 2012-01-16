@@ -1,5 +1,6 @@
 package p2pchatroom.core.events;
 
+import p2pchatroom.core.ErrorType;
 import p2pchatroom.core.Peer;
 
 public interface ClientEventListener {

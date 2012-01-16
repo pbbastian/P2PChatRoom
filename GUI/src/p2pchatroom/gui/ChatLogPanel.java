@@ -1,3 +1,5 @@
+package p2pchatroom.gui;
+
 import net.miginfocom.swing.MigLayout;
 import p2pchatroom.core.Peer;
 

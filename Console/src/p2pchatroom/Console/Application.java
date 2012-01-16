@@ -1,9 +1,9 @@
-package p2pchatroom.Console;
+package p2pchatroom.console;
 
 import p2pchatroom.core.Client;
+import p2pchatroom.core.ErrorType;
 import p2pchatroom.core.Peer;
 import p2pchatroom.core.events.ClientEventListener;
-import p2pchatroom.core.events.ErrorType;
 
 import java.io.IOException;
 import java.net.BindException;
@@ -11,7 +11,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-public class Application implements ClientEventListener{
+public class Application implements ClientEventListener {
     private boolean getConsoleInput = true;
     private static final String programAndVersion = "P2P LAN Chat v1.0";
     private Client client;
