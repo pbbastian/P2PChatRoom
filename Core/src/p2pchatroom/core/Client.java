@@ -36,7 +36,7 @@ public class Client implements DiscoveryEventListener, ConnectionEventListener, 
         
         InetAddress localAddress = InetAddress.getLocalHost();
         Peer self = new Peer(localAddress, nickname);
-        ConnectionTempName fakeConnection = new FakeConnection(self, localAddress);
+        Connection fakeConnection = new FakeConnection(self, localAddress);
         fakeConnection.addEventListener(this);
         self.setConnection(fakeConnection);
         peers.add(self);
@@ -136,21 +136,21 @@ public class Client implements DiscoveryEventListener, ConnectionEventListener, 
     }
 
     @Override
-    public void onMessageReceived(ConnectionTempName connection, String message) {
+    public void onMessageReceived(Connection connection, String message) {
         for (ClientEventListener eventListener : eventListeners) {
             eventListener.onMessageReceived(connection.getPeer(), message);
         }
     }
 
     @Override
-    public void onPrivateMessageReceived(ConnectionTempName connection, String message) {
+    public void onPrivateMessageReceived(Connection connection, String message) {
         for (ClientEventListener eventListener : eventListeners) {
             eventListener.onPrivateMessageReceived(connection.getPeer(), message);
         }
     }
 
     @Override
-    public void onNicknameReceived(ConnectionTempName connection, String nickname) {
+    public void onNicknameReceived(Connection connection, String nickname) {
         String oldNickname = connection.getPeer().getNickname();
         connection.getPeer().setNickname(nickname);
         if (oldNickname == null) {
@@ -163,7 +163,7 @@ public class Client implements DiscoveryEventListener, ConnectionEventListener, 
     }
 
     @Override
-    public void onConnectionClosed(ConnectionTempName connection) {
+    public void onConnectionClosed(Connection connection) {
         peers.remove(connection.getPeer());
         for (ClientEventListener eventListener : eventListeners) {
             eventListener.onConnectionClosed(connection.getPeer());

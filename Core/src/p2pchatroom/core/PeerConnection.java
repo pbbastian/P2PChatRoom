@@ -7,7 +7,7 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.util.ArrayList;
 
-public class PeerConnection implements ConnectionTempName {
+public class PeerConnection implements Connection {
     private final Socket socket;
     private InetAddress address;
     private PeerReaderThread readerThread;

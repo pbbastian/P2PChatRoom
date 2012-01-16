@@ -6,7 +6,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.net.InetAddress;
 
-public interface ConnectionTempName extends Closeable {
+public interface Connection extends Closeable {
     void open() throws IOException;
     void addEventListener(ConnectionEventListener eventListener);
     void message(String message);

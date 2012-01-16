@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.util.ArrayList;
 
-public class FakeConnection implements ConnectionTempName {
+public class FakeConnection implements Connection {
     private final InetAddress address;
     private Peer peer;
     private final ArrayList<ConnectionEventListener> eventListeners;
