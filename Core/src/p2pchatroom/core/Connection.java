@@ -9,12 +9,12 @@ import java.net.Socket;
 import java.util.ArrayList;
 
 public class Connection implements Closeable {
-    private Socket socket;
-    private InetAddress address;
+    private final Socket socket;
+    private final InetAddress address;
     private PeerReaderThread readerThread;
     private PeerWriterThread writerThread;
-    private ArrayList<ConnectionEventListener> eventListeners;
-    Peer peer;
+    private final ArrayList<ConnectionEventListener> eventListeners;
+    private Peer peer;
 
     public Connection(Peer peer, Socket socket) {
         this.peer = peer;

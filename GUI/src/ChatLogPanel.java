@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 
 public class ChatLogPanel extends JPanel {
-    private MigLayout layout;
+    private final MigLayout layout;
     private boolean isFirstMessage = true;
 
     public ChatLogPanel() {
@@ -81,7 +81,7 @@ public class ChatLogPanel extends JPanel {
     }
     
     private void addLine(String sender, String message, Color senderForeground, Color messageForeground) {
-        addLine(sender, message, senderForeground, messageForeground, true);
+        addLine(sender, message, null, messageForeground, true);
     }
 
     private void addLine(String sender, String message, Color senderForeground) {

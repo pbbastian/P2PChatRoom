@@ -5,9 +5,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 
-public class PeerReaderThread extends Thread {
-    private Socket socket;
-    private Connection peerConnection;
+class PeerReaderThread extends Thread {
+    private final Socket socket;
+    private final Connection peerConnection;
     private BufferedReader reader;
     
     public PeerReaderThread(Socket socket, Connection peerConnection) throws IOException {

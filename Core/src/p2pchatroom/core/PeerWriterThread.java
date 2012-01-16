@@ -5,11 +5,11 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
 
-public class PeerWriterThread extends Thread {
-    private Socket socket;
-    private ArrayList<String> queue;
+class PeerWriterThread extends Thread {
+    private final Socket socket;
+    private final ArrayList<String> queue;
     
-    public PeerWriterThread(Socket socket) throws IOException {
+    public PeerWriterThread(Socket socket) {
         this.socket = socket;
         this.queue = new ArrayList<String>();
     }
@@ -29,10 +29,14 @@ public class PeerWriterThread extends Thread {
         while (!isInterrupted()) {
             if (queue.size() > 0) {
                 for (String message : queue) {
-                    writer.println(message);
+                    if (writer != null) {
+                        writer.println(message);
+                    }
                 }
                 queue.clear();
-                writer.flush();
+                if (writer != null) {
+                    writer.flush();
+                }
             }
             try {
                 sleep(100);

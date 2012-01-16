@@ -9,15 +9,15 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.ArrayList;
 
-public class DiscoveryBroadcasterThread extends Thread implements Closeable {
-    private InetAddress group;
-    private int port;
-    private byte[] message;
+class DiscoveryBroadcasterThread extends Thread implements Closeable {
+    private final InetAddress group;
+    private final int port;
+    private final byte[] message;
     private DatagramPacket packet;
     private DatagramSocket socket;
-    private ArrayList<IOExceptionEventListener> eventListeners;
+    private final ArrayList<IOExceptionEventListener> eventListeners;
 
-    public DiscoveryBroadcasterThread(InetAddress group, int port, byte[] message) throws IOException {
+    private DiscoveryBroadcasterThread(InetAddress group, int port, byte[] message) {
         this.group = group;
         this.port = port;
         this.message = message;

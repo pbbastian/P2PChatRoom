@@ -13,22 +13,21 @@ import java.util.Scanner;
 
 public class Application implements ClientEventListener{
     private boolean getConsoleInput = true;
-    private String programAndVersion;
+    private static final String programAndVersion = "P2P LAN Chat v1.0";
     private Client client;
 
-    public Application(String program_andVersion) {
-        this.programAndVersion = program_andVersion;
+    private Application() {
         introduction();
-        try {client = new Client("238.255.255.255", 9010, 9011, getConsoleInput(), program_andVersion);} catch (UnknownHostException e) {}
+        try {client = new Client(9010, 9011, getConsoleInput(), programAndVersion);} catch (UnknownHostException e) {}
         client.addEventListener(this);
         try {
             client.startListeningForBroadcasts();
             client.startListeningForConnections();
             client.broadcast();
         } catch (BindException e) {
-            System.out.println("Error occured: "+e.getMessage());
+            System.out.println("Error occurred: "+e.getMessage());
         } catch (IOException e) {
-            System.out.println("Error occured: "+e.getMessage());
+            System.out.println("Error occurred: "+e.getMessage());
         }
         System.out.println("--- YOU ARE NOW ONLINE ---");
         while (getConsoleInput) {
@@ -82,9 +81,9 @@ public class Application implements ClientEventListener{
 
             } else if(consoleInput.equalsIgnoreCase("/users")) {
                 //Lists users online
-                ArrayList<Peer> userlist = client.getPeers();
+                ArrayList<Peer> userList = client.getPeers();
                 System.out.println("ONLINE USERS:");
-                for(Peer peer : userlist) {
+                for(Peer peer : userList) {
                     System.out.printf("@%-15s %s\n", peer.getNickname(), peer.getAddress().getHostAddress());
                 }
 
@@ -93,7 +92,7 @@ public class Application implements ClientEventListener{
                 String[] stringParts = consoleInput.split(" ", 2);
                 String user = stringParts[0].replace("@", "");
                 if(user.equalsIgnoreCase(client.getNickname()) || user.equalsIgnoreCase(client.getNickname())) {
-                    System.out.println("ERROR: You wrote to yourself...uber fail");
+                    System.out.println("ERROR: You wrote to yourself...mega fail");
                 } else {
                     String message = stringParts[1];
                     client.privateMessage(user, message);
@@ -134,7 +133,7 @@ public class Application implements ClientEventListener{
     //DISCOVERYLISTENERTHREAD INTERFACE///////////////////////////////////////
     //MAIN METHOD//////////////////////////////////////////////////////////////
     public static void main(String[] args) {
-        Application application = new Application("P2PChatRoom v0.1");
+        Application application = new Application();
     }
 
     @Override

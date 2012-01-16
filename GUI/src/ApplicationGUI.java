@@ -18,17 +18,17 @@ public class ApplicationGUI implements ActionListener, ClientEventListener{
     //Core-related
     private static final String programVersion = "P2P LAN Chat v1.0";
     private Client client;
-    private String nickname;
-    private ArrayList<Peer> peers;
-    private String[] commands = {"help","commands","userlist","users","list","nick","nickname","@","setports"};
+    private final String nickname;
+    private final ArrayList<Peer> peers;
+    private final String[] commands = {"help","commands","userlist","users","list","nick","nickname","@","setports"};
 
     //GUI-related
-    private ChatLogPanel chatLog;
-    private JTextField chatInput;
-    private JList<String> userList;
-    private JButton send;
+    private final ChatLogPanel chatLog;
+    private final JTextField chatInput;
+    private final JList<String> userList;
+    private final JButton send;
     
-    public ApplicationGUI() {
+    private ApplicationGUI() {
         ///////////////////////////////////////////////////////////////GUI START
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -47,7 +47,7 @@ public class ApplicationGUI implements ActionListener, ClientEventListener{
             e.printStackTrace();
         }
 
-        JFrame frame = new JFrame("TEST");
+        JFrame frame = new JFrame(programVersion);
         MigLayout layout = new MigLayout("fill, wrap 3");
         JPanel panel = new JPanel(layout);
         frame.getContentPane().add(panel);
@@ -86,13 +86,13 @@ public class ApplicationGUI implements ActionListener, ClientEventListener{
         chatInput.requestFocus();
         ////////////////////////////////////////////////////////////////GUI END
 
-        startClient(9010,9011);
+        startClient(9010, 9011);
         this.peers = new ArrayList<Peer>(client.getPeers());
 
     }
     private void startClient(int discoveryPort, int connectionPort) {
         try {
-            client = new Client("238.255.255.255", discoveryPort, connectionPort,this.nickname, programVersion);
+            client = new Client(discoveryPort, connectionPort,this.nickname, programVersion);
             client.addEventListener(this);
             client.startListeningForBroadcasts();
             client.startListeningForConnections();
@@ -188,8 +188,8 @@ public class ApplicationGUI implements ActionListener, ClientEventListener{
         if (e.getSource() == send || e.getSource() == chatInput) {
             String input = chatInput.getText();
             if(!chatInput.getText().equals("")) {
-                interpretInput(input);
                 chatLog.addMessage(new Peer(null, client.getNickname()), input);
+                interpretInput(input);
             }
             chatInput.setText("");
         }

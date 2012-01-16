@@ -9,11 +9,11 @@ import java.net.MulticastSocket;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class DiscoveryListenerThread extends Thread {
-    private InetAddress address;
-    private int port;
+class DiscoveryListenerThread extends Thread {
+    private final InetAddress address;
+    private final int port;
     private MulticastSocket socket;
-    private String programName;
+    private final String programName;
     private ArrayList<byte[]> knownAddresses;
     private ArrayList<DiscoveryEventListener> eventListeners;
     
@@ -57,10 +57,9 @@ public class DiscoveryListenerThread extends Thread {
                 for (byte[] knownAddress : knownAddresses) {
                     if (Arrays.equals(knownAddress, packetAddress.getAddress())) {
                         matchingAddressFound = true;
-                        continue;
                     }
                 }
-                if (matchingAddressFound == false) {
+                if (!matchingAddressFound) {
                     clientDiscovered(packetAddress);
                     knownAddresses.add(packetAddress.getAddress());
                 }

@@ -8,7 +8,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 
-public class ServerThread extends Thread {
+class ServerThread extends Thread {
     private ServerSocket serverSocket;
     private ArrayList<ServerEventListener> eventListeners;
 

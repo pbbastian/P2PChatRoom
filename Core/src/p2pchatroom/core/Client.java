@@ -13,10 +13,11 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 
+@SuppressWarnings("ALL")
 public class Client implements DiscoveryEventListener, ConnectionEventListener, ServerEventListener, IOExceptionEventListener {
     private String clientIdentifier;
     private ServerThread serverThread;
-    private ArrayList<Peer> peers;
+    private final ArrayList<Peer> peers;
     private String nickname;
     private InetAddress group;
     private int discoveryPort;
@@ -24,9 +25,9 @@ public class Client implements DiscoveryEventListener, ConnectionEventListener, 
     private ArrayList<ClientEventListener> eventListeners;
     private DiscoveryListenerThread discoveryListenerThread;
 
-    public Client(String group, int discoveryPort, int connectionPort, String nickname, String clientIdentifier) throws UnknownHostException {
+    public Client(int discoveryPort, int connectionPort, String nickname, String clientIdentifier) throws UnknownHostException {
         this.peers = new ArrayList<Peer>();
-        this.group = InetAddress.getByName(group);
+        this.group = InetAddress.getByName("238.255.255.255");
         this.connectionPort = connectionPort;
         this.discoveryPort = discoveryPort;
         this.eventListeners = new ArrayList<ClientEventListener>();
@@ -64,7 +65,7 @@ public class Client implements DiscoveryEventListener, ConnectionEventListener, 
         discoveryListenerThread.start();
     }
     
-    public void stopListeningForBroadcasts() {
+    void stopListeningForBroadcasts() {
         discoveryListenerThread.interrupt();
     }
 
@@ -74,7 +75,7 @@ public class Client implements DiscoveryEventListener, ConnectionEventListener, 
         serverThread.start();
     }
     
-    public void stopListeningForConnections() {
+    void stopListeningForConnections() {
         serverThread.interrupt();
     }
 
