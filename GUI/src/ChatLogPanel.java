@@ -3,18 +3,32 @@ import p2pchatroom.core.Peer;
 
 import javax.swing.*;
 import java.awt.*;
-import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-public class ChatLogPanel extends JPanel {
+public class ChatLogPanel {
     private final MigLayout layout;
     private boolean isFirstMessage = true;
 
+    public JPanel getPanel() {
+        return panel;
+    }
+
+    private JPanel panel;
+
+    public JScrollPane getScrollPane() {
+        return scrollPane;
+    }
+
+    private JScrollPane scrollPane;
+
     public ChatLogPanel() {
         layout = new MigLayout("fillx, aligny bottom, wrap 3", "[align right]10[grow]10[align right]", "5[align top]5[]");
-        setLayout(layout);
-        setBackground(Color.WHITE);
+        panel = new JPanel(layout);
+        scrollPane = new JScrollPane(panel);
+
+        panel.setLayout(layout);
+        panel.setBackground(Color.WHITE);
     }
 
     public void addMessage(Peer peer, String message) {
@@ -53,10 +67,18 @@ public class ChatLogPanel extends JPanel {
     }
     
     private void addLine(String sender, String message, Color senderForeground, Color messageForeground, boolean useSeparator) {
+        // The value  represents the very start of the viewable area, whereas the maximum represents the very end
+        //   of the entire pane.
+        JScrollBar scrollBar = scrollPane.getVerticalScrollBar();
+        int height = scrollBar.getHeight();
+        int lowerCurrent = scrollBar.getValue() + height;
+        int maximum = scrollBar.getMaximum();
+        final boolean adjustScrollPane = lowerCurrent == maximum || lowerCurrent == 0 ? true : false;
+        
         if (!isFirstMessage && useSeparator) {
             JSeparator separator = new JSeparator(JSeparator.HORIZONTAL);
             separator.setForeground(Color.getHSBColor((float)0, (float)0, (float)0.9));
-            add(separator, "span 3, grow");
+            panel.add(separator, "span 3, grow");
         } else if (isFirstMessage) {
             isFirstMessage = false;
         }
@@ -73,15 +95,24 @@ public class ChatLogPanel extends JPanel {
             messageLabel.setForeground(messageForeground);
         }
 
-        add(senderLabel);
-        add(messageLabel);
-        add(timestampLabel);
+        panel.add(senderLabel);
+        panel.add(messageLabel);
+        panel.add(timestampLabel);
+        
+        panel.updateUI();
 
-        updateUI();
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                if (adjustScrollPane) {
+                    scrollPane.getVerticalScrollBar().setValue(scrollPane.getVerticalScrollBar().getMaximum());
+                }
+            }
+        });
     }
     
     private void addLine(String sender, String message, Color senderForeground, Color messageForeground) {
-        addLine(sender, message, null, messageForeground, true);
+        addLine(sender, message, senderForeground, messageForeground, true);
     }
 
     private void addLine(String sender, String message, Color senderForeground) {
@@ -94,37 +125,5 @@ public class ChatLogPanel extends JPanel {
 
     private void addLine(String sender, String message) {
         addLine(sender, message, null, null, true);
-    }
-    
-    public static void main(String[] args) throws Exception {
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        JFrame frame = new JFrame("Test");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        ChatLogPanel chat = new ChatLogPanel();
-        chat.addMessage(new Peer(null, "izym"), "Dette er en besked!");
-        chat.addMessage(new Peer(null, "Systemic33"), "Dette er en besked!");
-        chat.addPrivateMessage(new Peer(null, "Systemic33"), "Dette er en besked! asdf asdf asdf asdf asdf asdf");
-        chat.addMessage(new Peer(null, "izym"), "Dette er en besked!");
-        ArrayList<Peer> peers = new ArrayList<Peer>(5);
-        for (int i = 0; i < 5; i++) {
-            peers.add(new Peer(InetAddress.getByName("192.168.1.19"), "izym"+i));
-        }
-        chat.addPeerList(peers);
-        frame.setContentPane(chat);
-        frame.setSize(500, 500);
-        frame.setVisible(true);
-        Thread.sleep(200);
-        chat.addMessage(new Peer(null, "izym"), "Dette er en besked!");
-        Thread.sleep(200);
-        chat.addPrivateMessage(new Peer(null, "Systemic33"), "Dette er en besked! asdf asdf asdf asdf asdf asdf");
-        Thread.sleep(200);
-        chat.addJoinMessage(new Peer(null, "Systemic33"));
-        Thread.sleep(200);
-        chat.addMessage(new Peer(null, "izym"), "Dette er en besked!");
     }
 }
