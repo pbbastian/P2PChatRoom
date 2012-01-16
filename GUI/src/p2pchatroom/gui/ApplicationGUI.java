@@ -9,8 +9,6 @@ import p2pchatroom.core.events.ClientEventListener;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.AdjustmentEvent;
-import java.awt.event.AdjustmentListener;
 import java.io.IOException;
 import java.net.BindException;
 import java.util.ArrayList;
@@ -37,17 +35,6 @@ public class ApplicationGUI implements ActionListener, ClientEventListener {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); //Makes use of Windows 7 looks
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (UnsupportedLookAndFeelException e) {
-            e.printStackTrace();
-        }
 
         JFrame frame = new JFrame(programVersion);
         MigLayout layout = new MigLayout("fill, wrap 3");
@@ -58,12 +45,6 @@ public class ApplicationGUI implements ActionListener, ClientEventListener {
         userList = new JList<String>();
         chatInput = new JTextField();
         send = new JButton("Send");
-
-        JScrollPane scrollPane = new JScrollPane(chatLog);
-        scrollPane.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
-            public void adjustmentValueChanged(AdjustmentEvent e) {
-                e.getAdjustable().setValue(e.getAdjustable().getMaximum());
-            }});
         
         chatInput.addActionListener(this);
         send.addActionListener(this);
@@ -72,7 +53,7 @@ public class ApplicationGUI implements ActionListener, ClientEventListener {
         userList.setLayoutOrientation(JList.VERTICAL);
         userList.setVisibleRowCount(-1);
 
-        panel.add(scrollPane, "cell 1 0 3 1, grow, push, gapx 8 10, gapy 10 0");
+        panel.add(chatLog.getScrollPane(), "cell 1 0 3 1, grow, push, gapx 8 10, gapy 10 0");
         panel.add(userList, "dock east, gapx 0 10, gapy 10 10, width 90!");
         panel.add(chatInput, "cell 1 3 2 1, growx, pushx, gapx 10 0, gapy 0 10, h 26!");
         panel.add(send, "cell 3 3, gapx 0 10");
