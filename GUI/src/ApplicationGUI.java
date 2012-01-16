@@ -129,7 +129,7 @@ public class ApplicationGUI implements ActionListener, ClientEventListener{
             if(!found) {
                 chatLog.addErrorMessage("Could not find a user by that name");
             }
-        } else {
+        } else { //Message is interpreted as a regular message now
             client.message(input);
         }
     }
@@ -170,9 +170,9 @@ public class ApplicationGUI implements ActionListener, ClientEventListener{
             String input = chatInput.getText();
             if(!chatInput.getText().equals("")) {
                 chatLog.addMessage(new Peer(null, client.getNickname()), input);
+                chatInput.setText("");
                 interpretInput(input);
             }
-            chatInput.setText("");
         }
     }
 
