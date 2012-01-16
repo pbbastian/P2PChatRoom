@@ -6,6 +6,13 @@ public class Peer {
     private String nickname;
     private InetAddress address;
     private Connection connection;
+    private boolean isSelf;
+
+    public Peer(InetAddress address, String nickname, boolean isSelf) {
+        this.address = address;
+        this.nickname = nickname;
+        this.isSelf = isSelf;
+    }
 
     public Peer(InetAddress address, String nickname) {
         this.address = address;

@@ -33,6 +33,10 @@ public class Client implements DiscoveryEventListener, ConnectionEventListener, 
         this.eventListeners = new ArrayList<ClientEventListener>();
         this.nickname = nickname;
         this.clientIdentifier = clientIdentifier;
+        
+        InetAddress localAddress = InetAddress.getLocalHost();
+        Peer self = new Peer(localAddress, nickname, true);
+        peers.add(self);
     }
 
     public void addEventListener(ClientEventListener eventListener) {
