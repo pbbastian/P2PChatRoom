@@ -6,6 +6,7 @@ import p2pchatroom.core.events.ClientEventListener;
 import p2pchatroom.core.events.ErrorType;
 
 import java.io.IOException;
+import java.net.BindException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -18,12 +19,14 @@ public class Application implements ClientEventListener{
     public Application(String program_andVersion) {
         this.programAndVersion = program_andVersion;
         introduction();
-        try {client = new Client("238.255.255.255", 9010, 9011, getConsoleInput());} catch (UnknownHostException e) {}
+        try {client = new Client("238.255.255.255", 9010, 9011, getConsoleInput(), program_andVersion);} catch (UnknownHostException e) {}
         client.addEventListener(this);
         try {
             client.startListeningForBroadcasts();
             client.startListeningForConnections();
             client.broadcast();
+        } catch (BindException e) {
+            System.out.println("Error occured: "+e.getMessage());
         } catch (IOException e) {
             System.out.println("Error occured: "+e.getMessage());
         }

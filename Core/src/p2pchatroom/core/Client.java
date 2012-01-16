@@ -7,13 +7,14 @@ package p2pchatroom.core;
 import p2pchatroom.core.events.*;
 
 import java.io.IOException;
+import java.net.BindException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 public class Client implements DiscoveryEventListener, ConnectionEventListener, ServerEventListener, IOExceptionEventListener {
-    private static final String clientIdentifier = "P2PChatRoom 0.1";
+    private String clientIdentifier;
     private ServerThread serverThread;
     private ArrayList<Peer> peers;
     private String nickname;
@@ -23,13 +24,14 @@ public class Client implements DiscoveryEventListener, ConnectionEventListener, 
     private ArrayList<ClientEventListener> eventListeners;
     private DiscoveryListenerThread discoveryListenerThread;
 
-    public Client(String group, int discoveryPort, int connectionPort, String nickname) throws UnknownHostException {
+    public Client(String group, int discoveryPort, int connectionPort, String nickname, String clientIdentifier) throws UnknownHostException {
         this.peers = new ArrayList<Peer>();
         this.group = InetAddress.getByName(group);
         this.connectionPort = connectionPort;
         this.discoveryPort = discoveryPort;
         this.eventListeners = new ArrayList<ClientEventListener>();
         this.nickname = nickname;
+        this.clientIdentifier = clientIdentifier;
     }
 
     public void addEventListener(ClientEventListener eventListener) {
@@ -66,7 +68,7 @@ public class Client implements DiscoveryEventListener, ConnectionEventListener, 
         discoveryListenerThread.interrupt();
     }
 
-    public void startListeningForConnections() throws IOException {
+    public void startListeningForConnections() throws IOException, BindException{
         serverThread = new ServerThread(connectionPort);
         serverThread.addEventListener(this);
         serverThread.start();

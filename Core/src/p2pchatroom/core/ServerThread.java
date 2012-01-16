@@ -3,6 +3,7 @@ package p2pchatroom.core;
 import p2pchatroom.core.events.ServerEventListener;
 
 import java.io.IOException;
+import java.net.BindException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -11,7 +12,7 @@ public class ServerThread extends Thread {
     private ServerSocket serverSocket;
     private ArrayList<ServerEventListener> eventListeners;
 
-    public ServerThread(int port) throws IOException {
+    public ServerThread(int port) throws IOException, BindException {
         serverSocket = new ServerSocket(port);
         eventListeners = new ArrayList<ServerEventListener>();
     }

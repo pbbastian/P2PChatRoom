@@ -9,25 +9,32 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
+import java.io.IOException;
+import java.net.BindException;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 public class ApplicationGUI implements ActionListener, ClientEventListener{
+    //Core-related
+    private static final String programVersion = "P2P LAN Chat v1.0";
     private Client client;
     private String nickname;
     private ArrayList<Peer> peers;
-    
+    private String[] commands = {"help","commands","userlist","users","list","nick","nickname","@","setports"};
+
+    //GUI-related
     private ChatLogPanel chatLog;
     private JTextField chatInput;
     private JList<String> userList;
     private JButton send;
     
     public ApplicationGUI() {
+        ///////////////////////////////////////////////////////////////GUI START
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) {
             e.printStackTrace();
         }
-        ///////////////////////////////////////////////////////////////GUI START
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); //Makes use of Windows 7 looks
         } catch (ClassNotFoundException e) {
@@ -73,22 +80,32 @@ public class ApplicationGUI implements ActionListener, ClientEventListener{
         frame.setVisible(true);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLocationRelativeTo(null);
-
+        
         this.nickname = JOptionPane.showInputDialog(null, "Nickname");
+        
+        chatInput.requestFocus();
         ////////////////////////////////////////////////////////////////GUI END
 
+        startClient(9010,9011);
+        this.peers = new ArrayList<Peer>(client.getPeers());
+
+    }
+    private void startClient(int discoveryPort, int connectionPort) {
         try {
-            client = new Client("238.255.255.255", 9010, 9011,this.nickname);
+            client = new Client("238.255.255.255", discoveryPort, connectionPort,this.nickname, programVersion);
             client.addEventListener(this);
             client.startListeningForBroadcasts();
             client.startListeningForConnections();
             client.broadcast();
-        } catch (Exception e) {
+        } catch (BindException e) {
+            discoveryPort = discoveryPort+2;
+            connectionPort = connectionPort+2;
+            chatLog.addErrorMessage("Ports already in use, another instance of this program may be running");
+            chatLog.addSystemMessage(String.format("Switching to ports %d and %d", discoveryPort, connectionPort));
+            startClient(discoveryPort,connectionPort);
+        } catch (IOException e) {
             chatLog.addErrorMessage("Error occured: " + e);
         }
-        
-        this.peers = new ArrayList<Peer>(client.getPeers());
-
     }
     private void updateUserList() {
         DefaultListModel<String> model = new DefaultListModel<String>();
@@ -97,75 +114,84 @@ public class ApplicationGUI implements ActionListener, ClientEventListener{
         }
         userList.setModel(model);
     }
-
-    private void analyseInput(String textInput) {
-        if(textInput.substring(0,1).equalsIgnoreCase("/") || textInput.substring(0,1).equalsIgnoreCase("@")) {
-            //Checks input, to see if user was trying to type a command
-            if(textInput.equalsIgnoreCase("/help") || textInput.equalsIgnoreCase("/?")
-                    || textInput.equalsIgnoreCase("/commands")) {
-                //Reports back a list of commands available to the user
-                String[] commandList = new String[] {
-                        "message",
-                        "/users",
-                        "@user <message>",
-                        "/nick <nickname>"
-                };
-                String[] descriptionList = new String[] {
-                        "Send message to chat",
-                        "Lists online users",
-                        "Send private message to user",
-                        "Set new nickname"
-                };
-                for (int i = 0; i < commandList.length; i++) {
-                    //TODO: Add the following text output to chatlog.
-                    //System.out.printf("%-25s - %s\n",commandList[i], descriptionList[i]);
+    private void interpretInput(String input) {
+        if (input.startsWith("/")) { //If Input is a command
+            boolean found = false;
+            input = input.substring(1,input.length());
+            Scanner inputScan = new Scanner(input);
+            int keywordSize = 3;
+            String keyword[] = new String[keywordSize];
+            for (int i = 0; i < keywordSize; i++) {
+                if(inputScan.hasNext()) {
+                    keyword[i] = inputScan.next();
                 }
-
-            } else if(textInput.equalsIgnoreCase("/users")) {
-                //Lists users online
-                ArrayList<Peer> peers = new ArrayList<Peer>(client.getPeers());
-                chatLog.addPeerList(peers);
-
-            } else if(textInput.substring(0,1).equalsIgnoreCase("@")) {
-                //Sends a private message
-                String[] stringParts = textInput.split(" ", 2);
-                String user = stringParts[0].replace("@", "");
-                if(user.equalsIgnoreCase(client.getNickname()) || user.equalsIgnoreCase(client.getNickname())) {
-                    JOptionPane.showMessageDialog(null, "You can't send a Private Message to yourself");
-                } else {
-                    String message = stringParts[1];
-                    // TODO: Simplify this in some way
-                    chatLog.addPrivateMessage(new Peer(null, client.getNickname()), message);
-                    client.privateMessage(user, message);
+            }
+            for(String command : commands) {
+                if(command.equals(keyword[0])) {
+                    executeCommand(command, keyword[1], keyword[2]);
+                    found = true;
                 }
-
-            } else if(textInput.substring(0,5).equalsIgnoreCase("/nick")) {
-                //Sets nickname of client
-                String[] stringParts = textInput.split(" ");
-                String nickname = stringParts[1];
-                chatLog.addNicknameChangeMessage(new Peer(null, nickname), client.getNickname());
-                client.setNickname(nickname);
-
-            } else {
+            }
+            if(!found) {
                 chatLog.addErrorMessage("Invalid command, type /help for a list of commands");
             }
+        } else if (input.startsWith("@")) { // If Input is a Private Message
+            boolean found = false;
+            for(Peer peer : peers) {
+                if(input.substring(1,(peer.getNickname().length())).equals(peer.getNickname())) {
+                    String message = input.substring(peer.getNickname().length()+2,input.length());
+                    chatLog.addPrivateMessage(peer, message);
+                    client.privateMessage(peer.getNickname(), message);
+                    found = true;
+                }
+            }
+            if(!found) {
+                chatLog.addErrorMessage("Could not find a user by that name");
+            }
         } else {
-            chatLog.addMessage(new Peer(null, client.getNickname()), textInput);
-            chatInput.setText("");
-            client.message(textInput);
+            client.message(input);
         }
     }
+    
+    private void executeCommand(String command, String parameter1, String parameter2) {
+        if(command.equals("help") || command.equals("commands")) {
+            chatLog.addSystemMessage("This command is currently not working");
 
+        } else if(command.equals("nick") || command.equals("nickname")){
+            chatLog.addNicknameChangeMessage(new Peer(null, parameter1), client.getNickname());
+            client.setNickname(parameter1);
+
+        } else if(command.equals("userlist") || command.equals("users") || command.equals("list")) {
+            ArrayList<Peer> peers = new ArrayList<Peer>(client.getPeers());
+            chatLog.addPeerList(peers);
+
+        } else if(command.equals("setports")) {
+            if (parameter1 != null || parameter2 != null) {
+                startClient(Integer.parseInt(parameter1), Integer.parseInt(parameter2));
+            } else {
+                chatLog.addErrorMessage("Invalid port numbers, choose an integer between 1024 and 49151");
+            }
+        }
+    }
+    
+    
+    
+    
+    
+    
     public static void main(String[] args) {
         ApplicationGUI applicationGUI = new ApplicationGUI();
     }
-
+    
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == send || e.getSource() == chatInput) {
+            String input = chatInput.getText();
             if(!chatInput.getText().equals("")) {
-                analyseInput(chatInput.getText());
+                interpretInput(input);
+                chatLog.addMessage(new Peer(null, client.getNickname()), input);
             }
+            chatInput.setText("");
         }
     }
 
