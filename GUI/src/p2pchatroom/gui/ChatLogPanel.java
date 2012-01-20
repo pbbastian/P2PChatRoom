@@ -67,6 +67,16 @@ public class ChatLogPanel {
             addLine("", String.format("<html><b>%s</b> at <b>%s</b>", peer.getNickname(), peer.getAddress()), null, Color.getHSBColor((float)0.6, (float)1.0, (float)0.5), false);
         }
     }
+
+    public void addCommandList(String[] commands, String[] descriptions) throws Exception {
+        if (commands.length != descriptions.length) {
+            throw new Exception("The two arrays must be of the same length.");
+        }
+        addLine("*", "Available commands:", null, Color.getHSBColor((float)0.6, (float)1.0, (float)0.5));
+        for (int i = 0; i < commands.length; i++) {
+            addLine("", String.format("<html><b>%s</b> - %s</html>", commands[i], descriptions[i]), null, Color.getHSBColor((float)0.6, (float)1.0, (float)0.5), false);
+        }
+    }
     
     private void addLine(String sender, String message, Color senderForeground, Color messageForeground, boolean useSeparator) {
         // The value  represents the very start of the viewable area, whereas the maximum represents the very end

@@ -59,7 +59,9 @@ class DiscoveryBroadcasterThread extends Thread implements Closeable {
             } finally {
                 try {
                     this.close();
-                } catch (IOException e) { }
+                } catch (IOException e) {
+                    // The connection might already have been closed, but that doesn't really matter in this case.
+                }
             }
         }
     }

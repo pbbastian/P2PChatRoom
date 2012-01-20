@@ -54,6 +54,7 @@ class DiscoveryListenerThread extends Thread {
                 socket.receive(packet);
                 InetAddress packetAddress = packet.getAddress();
                 boolean matchingAddressFound = false;
+                final ArrayList<byte[]> knownAddresses = this.knownAddresses;
                 for (byte[] knownAddress : knownAddresses) {
                     if (Arrays.equals(knownAddress, packetAddress.getAddress())) {
                         matchingAddressFound = true;
@@ -69,6 +70,14 @@ class DiscoveryListenerThread extends Thread {
                 } else {
                     return;
                 }
+            }
+        }
+    }
+    
+    public void removeAddressFromKnownList(byte[] address) {
+        for (byte[] knownAddress : knownAddresses) {
+            if (Arrays.equals(knownAddress,  address)) {
+                knownAddresses.remove(knownAddress);
             }
         }
     }

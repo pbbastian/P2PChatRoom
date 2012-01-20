@@ -20,7 +20,19 @@ public class ApplicationGUI implements ActionListener, ClientEventListener {
     private Client client;
     private final String nickname;
     private final ArrayList<Peer> peers;
-    private final String[] commands = {"help","commands","userlist","users","list","nick","nickname","@","setports"};
+    private final String[] commands = {
+            "help",
+            "userlist",
+            "nick",
+            "@",
+            "setports"};
+    private final String[] descriptions = {
+            "List available commands",
+            "Lists online users",
+            "Set new nickname",
+            "Send private message to user",
+            "Set the ports to connect to",
+    };
 
     //GUI-related
     private final ChatLogPanel chatLog;
@@ -103,7 +115,9 @@ public class ApplicationGUI implements ActionListener, ClientEventListener {
     private void interpretInput(String input) {
         if (input.startsWith("/")) { //If Input is a command
             boolean found = false;
-            input = input.substring(1,input.length());
+            String[] parts = input.split(" ", 3);
+            String inputtedCommand = parts[0].substring(1);
+            /*input = input.substring(1,input.length());
             Scanner inputScan = new Scanner(input);
             int keywordSize = 3;
             String keyword[] = new String[keywordSize];
@@ -111,23 +125,27 @@ public class ApplicationGUI implements ActionListener, ClientEventListener {
                 if(inputScan.hasNext()) {
                     keyword[i] = inputScan.next();
                 }
-            }
+            }*/
             for(String command : commands) {
-                if(command.equals(keyword[0])) {
-                    executeCommand(command, keyword[1], keyword[2]);
+                if(command.equals(inputtedCommand)) {
+                    executeCommand(command, parts[1], parts[2]);
                     found = true;
+                    break;
                 }
             }
             if(!found) {
                 chatLog.addErrorMessage("Invalid command, type /help for a list of commands");
             }
         } else if (input.startsWith("@")) { // If Input is a Private Message
+            String[] parts = input.split(" ", 2);
+            String nickname = parts[0].substring(1);
+            String message = parts[1];
             boolean found = false;
             for(Peer peer : peers) {
-                if(input.substring(1,(peer.getNickname().length())).equals(peer.getNickname())) {
-                    String message = input.substring(peer.getNickname().length()+2,input.length());
+                if(nickname.equals(peer.getNickname())) {
                     client.privateMessage(peer.getNickname(), message);
                     found = true;
+                    break;
                 }
             }
             if(!found) {
@@ -139,13 +157,12 @@ public class ApplicationGUI implements ActionListener, ClientEventListener {
     }
     
     private void executeCommand(String command, String parameter1, String parameter2) {
-        if(command.equals("help") || command.equals("commands")) {
-            chatLog.addSystemMessage("This command is currently not working");
-
-        } else if(command.equals("nick") || command.equals("nickname")){
+        if(command.equals("help")) {
+            
+        } else if(command.equals("nick")){
             client.setNickname(parameter1);
 
-        } else if(command.equals("userlist") || command.equals("users") || command.equals("list")) {
+        } else if(command.equals("userlist")) {
             ArrayList<Peer> peers = new ArrayList<Peer>(client.getPeers());
             chatLog.addPeerList(peers);
 

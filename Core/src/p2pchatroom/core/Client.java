@@ -165,6 +165,7 @@ public class Client implements DiscoveryEventListener, ConnectionEventListener, 
     @Override
     public void onConnectionClosed(Connection connection) {
         peers.remove(connection.getPeer());
+        discoveryListenerThread.removeAddressFromKnownList(connection.getAddress().getAddress());
         for (ClientEventListener eventListener : eventListeners) {
             eventListener.onConnectionClosed(connection.getPeer());
         }
