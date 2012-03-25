@@ -1,0 +1,168 @@
+package p2pchatroom.console;
+
+import p2pchatroom.core.Client;
+import p2pchatroom.core.ErrorType;
+import p2pchatroom.core.Peer;
+import p2pchatroom.core.events.ClientEventListener;
+
+import java.io.IOException;
+import java.net.BindException;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Scanner;
+
+public class Application implements ClientEventListener {
+    private boolean getConsoleInput = true;
+    private static final String programAndVersion = "P2P LAN Chat v1.0";
+    private Client client;
+
+    private Application() {
+        introduction();
+        try {client = new Client(9010, 9011, getConsoleInput(), programAndVersion);} catch (UnknownHostException e) {}
+        client.addEventListener(this);
+        try {
+            client.startListeningForBroadcasts();
+            client.startListeningForConnections();
+            client.broadcast();
+        } catch (BindException e) {
+            System.out.println("Error occurred: "+e.getMessage());
+        } catch (IOException e) {
+            System.out.println("Error occurred: "+e.getMessage());
+        }
+        System.out.println("--- YOU ARE NOW ONLINE ---");
+        while (getConsoleInput) {
+            analyseConsoleInput(getConsoleInput());
+        }
+    }
+
+    private void introduction() {
+        largeSpacer();
+        System.out.printf(" Welcome to %s, type '/help' for a list of commands\n", programAndVersion);
+        largeSpacer();
+        System.out.print("Nickname: ");
+    }
+
+    private String getConsoleInput() {
+        Scanner console = new Scanner(System.in);
+        String consoleInput = "";
+        if(console.hasNextLine()) {
+            consoleInput = console.nextLine();
+        }
+        if(consoleInput.equalsIgnoreCase("")) {
+            return getConsoleInput();
+        } else {
+            return consoleInput;
+        }
+    }
+
+    private void analyseConsoleInput(String consoleInput) {
+        if(consoleInput.substring(0,1).equalsIgnoreCase("/") || consoleInput.substring(0,1).equalsIgnoreCase("@")) {
+            //Checks input, to see if user was trying to type a command
+            if(consoleInput.equalsIgnoreCase("/help") || consoleInput.equalsIgnoreCase("/?")
+                    || consoleInput.equalsIgnoreCase("/commands")) {
+                //Reports back a list of commands available to the user
+                String[] commandList = new String[] {
+                        "message",
+                        "/users",
+                        "@user <message>",
+                        "/exit",
+                        "/nick <nickname>"
+                };
+                String[] descriptionList = new String[] {
+                        "Send message to chat",
+                        "Lists online users",
+                        "Send private message to user",
+                        "Exit program",
+                        "Set new nickname"
+                };
+                for (int i = 0; i < commandList.length; i++) {
+                    System.out.printf("%-25s - %s\n",commandList[i], descriptionList[i]);
+                }
+
+            } else if(consoleInput.equalsIgnoreCase("/users")) {
+                //Lists users online
+                ArrayList<Peer> userList = client.getPeers();
+                System.out.println("ONLINE USERS:");
+                for(Peer peer : userList) {
+                    System.out.printf("@%-15s %s\n", peer.getNickname(), peer.getAddress().getHostAddress());
+                }
+
+            } else if(consoleInput.substring(0,1).equalsIgnoreCase("@")) {
+                //Sends a private message
+                String[] stringParts = consoleInput.split(" ", 2);
+                String user = stringParts[0].replace("@", "");
+                if(user.equalsIgnoreCase(client.getNickname()) || user.equalsIgnoreCase(client.getNickname())) {
+                    System.out.println("ERROR: You wrote to yourself...mega fail");
+                } else {
+                    String message = stringParts[1];
+                    client.privateMessage(user, message);
+                }
+
+
+            } else if(consoleInput.equalsIgnoreCase("/exit")) {
+                //Closes all connections and exits the program
+                this.getConsoleInput = false;
+                System.out.println("Closing connections and terminating program...");
+                if (client.closeConnections()) {
+                    client.message(""+client.getNickname()+" has exited the program");
+                    System.exit(0);
+                } else {
+                    System.out.println("ERROR: Unable to close connect - PeerConnection not found");
+                    System.exit(1); //IOException occurs when Client cannot find the connection it is trying to close.
+                }
+
+            } else if(consoleInput.substring(0,5).equalsIgnoreCase("/nick")) {
+                //Sets nickname of client
+                String[] stringParts = consoleInput.split(" ");
+                String nickname = stringParts[1];
+                client.setNickname(nickname);
+                System.out.printf("Nickname set to %s\n", nickname);
+
+            } else {
+                //Reached when command was not found
+                System.out.println("Invalid command, type /help for a list of commands");
+            }
+        } else {
+                client.message(consoleInput);
+            }
+    }
+    private void largeSpacer() {
+        System.out.println("-----------------------------------------------------------------");
+    }
+
+    //DISCOVERYLISTENERTHREAD INTERFACE///////////////////////////////////////
+    //MAIN METHOD//////////////////////////////////////////////////////////////
+    public static void main(String[] args) {
+        Application application = new Application();
+    }
+
+    @Override
+    public void onMessageReceived(Peer peer, String message) {
+        System.out.printf("%s: %s\n",peer.getNickname(), message);
+    }
+
+    @Override
+    public void onPrivateMessageReceived(Peer peer, String message) {
+        System.out.printf("%s: @%s %s\n", peer.getNickname(), client.getNickname(), message);
+    }
+
+    @Override
+    public void onNicknameChanged(Peer peer, String oldNickname) {
+        System.out.printf("%s changed name to %s\n",oldNickname , peer.getNickname());
+    }
+
+    @Override
+    public void onErrorOccurred(ErrorType type, String message) {
+        System.out.printf("ERROR(%s): %s\n", type.toString(), message);
+    }
+
+    @Override
+    public void onConnectionEstablished(Peer peer) {
+        System.out.printf("%s (%s) has joined\n",peer.getNickname(), peer.getAddress());
+    }
+
+    @Override
+    public void onConnectionClosed(Peer peer) {
+        System.out.printf("%s (%s) has left\n", peer.getNickname(), peer.getAddress());
+    }
+}
