@@ -7,7 +7,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="Core" />
+    <orderEntry type="library" name="miglayout-4.0" level="project" />
   </component>
 </module>
 
